@@ -1,0 +1,757 @@
+/* Componentes: botones táctiles, pastillas, tarjetas con franja, hojas azules con manija y mosaicos. */
+
+/* ── Botones táctiles (base que se hunde) ────────────────────────────── */
+
+.boton {
+  --base: #133c76;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  min-height: 48px;
+  padding: 10px 22px;
+  border: 2.5px solid transparent;
+  border-radius: var(--radio-pastilla);
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--base);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.2s ease;
+}
+
+.boton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--base);
+}
+
+.boton:active {
+  transform: translateY(5px);
+  box-shadow: 0 0 0 var(--base);
+}
+
+.boton:disabled,
+fieldset:disabled .boton {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: 0 5px 0 var(--base);
+}
+
+.boton--chico {
+  min-height: 40px;
+  padding: 7px 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 0 var(--base);
+}
+
+.boton--chico:hover {
+  box-shadow: 0 5px 0 var(--base);
+}
+
+.boton--chico:disabled {
+  box-shadow: 0 4px 0 var(--base);
+}
+
+.boton--ancho {
+  width: 100%;
+}
+
+.boton--azul {
+  background: var(--color-azul);
+  color: #fff;
+}
+
+.boton--amarillo {
+  --base: #c4c45e;
+  background: var(--color-amarillo);
+  color: var(--color-tinta);
+}
+
+.boton--contorno {
+  --base: var(--color-azul);
+  background: #fff;
+  border-color: var(--color-azul);
+  color: var(--color-azul);
+}
+
+.boton--whatsapp {
+  --base: #157a3d;
+  background: var(--color-whatsapp);
+  color: #fff;
+}
+
+/* ── Pastillas de estado ─────────────────────────────────────────────── */
+
+.pastilla {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: var(--radio-pastilla);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.pastilla .icono {
+  width: 0.95em;
+  height: 0.95em;
+}
+
+.pastilla--sin_contactar {
+  background: var(--color-amarillo);
+  color: var(--color-tinta);
+}
+
+.pastilla--con_intentos {
+  background: #fde9c4;
+  color: #7a4a00;
+}
+
+.pastilla--contactado,
+.pastilla--etapa-verificado {
+  background: #e3eaf6;
+  color: var(--color-azul);
+}
+
+.pastilla--comprometido,
+.pastilla--si,
+.pastilla--etapa-activo {
+  background: #dcf2e5;
+  color: #13663a;
+}
+
+.pastilla--etapa-registrado {
+  background: var(--color-azul-ui);
+  color: #fff;
+}
+
+.pastilla--etapa-habilitado {
+  background: var(--color-azul);
+  color: #fff;
+}
+
+.pastilla--neutra,
+.pastilla--cuit-no {
+  background: var(--color-mosaico);
+  color: var(--color-texto-suave);
+}
+
+.pastilla--cuit-si {
+  background: #fff;
+  color: var(--color-texto);
+  box-shadow: inset 0 0 0 1.5px var(--color-borde);
+}
+
+.pastilla--cuit-en_tramite {
+  background: #fff;
+  color: #7a4a00;
+  box-shadow: inset 0 0 0 1.5px #f3c978;
+}
+
+.pastilla--bloqueada {
+  background: var(--color-noche);
+  color: #fff;
+}
+
+/* ── Avatar con iniciales (como "E2" en la app) ──────────────────────── */
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--color-noche);
+  color: #fff;
+  font-family: var(--fuente-titulos);
+  font-weight: 900;
+  font-stretch: 110%;
+  font-size: 1rem;
+}
+
+.avatar--claro {
+  background: var(--color-mosaico);
+  color: var(--color-azul);
+}
+
+.avatar--grande {
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  font-size: 1.6rem;
+}
+
+/* ── Rubros ──────────────────────────────────────────────────────────── */
+
+.rubros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rubro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 10px;
+  background: var(--color-mosaico);
+  color: var(--color-tinta);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rubro-chip .icono {
+  width: 1em;
+  height: 1em;
+  color: var(--color-azul);
+}
+
+/* ── Tarjetas ────────────────────────────────────────────────────────── */
+
+.tarjeta {
+  padding: clamp(18px, 3vw, 28px);
+  border-radius: var(--radio-lg);
+  background: #fff;
+  box-shadow: 0 1px 0 var(--color-borde), 0 18px 32px -30px rgb(14 29 54 / 0.45);
+}
+
+.tarjeta__cabecera {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+/* Tarjeta blanca con franja gris como "Ver más información" de la app. */
+.tarjeta--franja {
+  padding: 0;
+  overflow: hidden;
+}
+
+.tarjeta--franja > :not(.tarjeta__franja) {
+  margin-inline: clamp(18px, 3vw, 28px);
+}
+
+.tarjeta--franja > :last-child {
+  margin-bottom: clamp(18px, 3vw, 24px);
+}
+
+.tarjeta__franja {
+  margin-bottom: 8px;
+  padding: 14px clamp(18px, 3vw, 28px);
+  background: var(--color-mosaico);
+  font-family: var(--fuente-titulos);
+  font-size: 1rem;
+  font-weight: 900;
+  font-stretch: 108%;
+  color: var(--color-tinta);
+}
+
+.tarjeta--paso {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  background: var(--color-amarillo);
+  box-shadow: 0 5px 0 #c4c45e;
+}
+
+.tarjeta--paso .eyebrow {
+  color: var(--color-azul);
+}
+
+.tarjeta--paso .nota,
+.tarjeta--paso .texto-suave {
+  color: rgb(14 29 54 / 0.7);
+}
+
+/* Hoja azul con manija, como las hojas de la app. */
+.hoja {
+  position: relative;
+  padding: 30px clamp(18px, 3vw, 28px) clamp(18px, 3vw, 26px);
+  border-radius: var(--radio-xl);
+  background: var(--color-azul-ui);
+  color: #fff;
+}
+
+.hoja__manija {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  width: 44px;
+  height: 5px;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.55);
+  transform: translateX(-50%);
+}
+
+.hoja__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+/* ── Mosaicos (grilla de rubros de la app) ───────────────────────────── */
+
+.mosaicos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mosaico {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  min-height: 108px;
+  padding: 14px 8px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--color-mosaico);
+  color: var(--color-tinta);
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #d6d6d6;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+}
+
+.mosaico:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #d6d6d6;
+}
+
+.mosaico:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #d6d6d6;
+}
+
+.mosaico .icono {
+  width: 1.6rem;
+  height: 1.6rem;
+  color: var(--color-azul);
+}
+
+.mosaico__nombre {
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mosaico__numero {
+  font-family: var(--fuente-titulos);
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-stretch: 115%;
+  line-height: 1;
+  color: var(--color-azul);
+}
+
+.mosaicos--filtro {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.mosaico--chico {
+  grid-auto-flow: row;
+  min-height: 78px;
+  padding: 10px 6px;
+}
+
+.mosaico--actual,
+.mosaico--actual:hover {
+  background: var(--color-azul);
+  color: #fff;
+  box-shadow: 0 4px 0 #133c76;
+}
+
+.mosaico--actual .icono {
+  color: var(--color-amarillo);
+}
+
+/* ── Filtros y campos ────────────────────────────────────────────────── */
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.campo {
+  display: grid;
+  gap: 4px;
+}
+
+.campo__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-texto-suave);
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: var(--color-mosaico);
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.campo input:focus,
+.campo select:focus {
+  outline: none;
+  border-color: var(--color-azul);
+  background: #fff;
+}
+
+.campo select {
+  padding-right: 40px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231F57A8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+  cursor: pointer;
+}
+
+.campo--busqueda {
+  position: relative;
+  flex: 1 1 240px;
+}
+
+.campo--busqueda .icono {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  color: var(--color-texto-suave);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.campo--busqueda input {
+  padding-left: 44px;
+}
+
+.campo--select {
+  flex: 0 1 160px;
+}
+
+fieldset:disabled .campo input {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.filtro-estados {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filtro-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 8px 14px;
+  border: 2px solid var(--color-borde);
+  border-radius: var(--radio-pastilla);
+  background: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.filtro-estado span {
+  min-width: 24px;
+  padding: 1px 7px;
+  border-radius: var(--radio-pastilla);
+  background: var(--color-mosaico);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.filtro-estado:hover {
+  border-color: var(--color-azul-ui);
+}
+
+.filtro-estado--actual,
+.filtro-estado--actual:hover {
+  border-color: var(--color-azul);
+  background: var(--color-azul);
+  color: #fff;
+}
+
+.filtro-estado--actual span {
+  background: var(--color-amarillo);
+  color: var(--color-tinta);
+}
+
+/* Pestañas como las del formulario de la landing. */
+.pestanas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  min-width: min(380px, 100%);
+}
+
+.pestana {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 10px 16px;
+  border: 2.5px solid var(--color-azul);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--color-azul);
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.pestana__numero {
+  padding: 1px 8px;
+  border-radius: var(--radio-pastilla);
+  background: var(--color-mosaico);
+  font-size: 0.8rem;
+}
+
+.pestana--actual {
+  background: var(--color-azul);
+  color: #fff;
+}
+
+.pestana--actual .pestana__numero {
+  background: var(--color-amarillo);
+  color: var(--color-tinta);
+}
+
+/* ── Filas de resultados ─────────────────────────────────────────────── */
+
+.filas {
+  display: grid;
+  gap: 8px;
+}
+
+.fila {
+  display: grid;
+  /* Columnas fijas para que todas las filas alineen aunque cambie el contenido. */
+  grid-template-columns: 46px minmax(170px, 1.2fr) minmax(0, 1.5fr) 250px 20px;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--color-hueso);
+  text-decoration: none;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.fila--usuario {
+  grid-template-columns: 46px minmax(170px, 1fr) minmax(0, 1.6fr) 150px 20px;
+}
+
+.fila:hover {
+  background: var(--color-mosaico);
+}
+
+.fila:hover .fila__flecha {
+  color: var(--color-azul);
+  transform: translateX(3px);
+}
+
+.fila__principal {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fila__nombre {
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  font-size: 1.02rem;
+  color: var(--color-tinta);
+}
+
+.fila__meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+}
+
+.fila__meta .icono {
+  width: 0.95em;
+  height: 0.95em;
+}
+
+.fila__detalle {
+  display: grid;
+  gap: 2px;
+  font-size: 0.88rem;
+  color: var(--color-texto);
+}
+
+.fila__necesidad {
+  font-size: 0.9rem;
+  color: var(--color-texto);
+}
+
+.fila__estado {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.fila__flecha {
+  color: var(--color-texto-suave);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.paginacion__resumen {
+  margin-top: 14px;
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
+}
+
+.paginacion .paginacion__resumen {
+  margin-top: 0;
+}
+
+.paginacion__botones {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .fila {
+    grid-template-columns: 46px minmax(0, 1fr) 20px;
+    grid-template-areas:
+      "avatar principal flecha"
+      "detalle detalle detalle"
+      "estado estado estado";
+    gap: 10px 12px;
+  }
+
+  .fila > .avatar {
+    grid-area: avatar;
+  }
+
+  .fila__principal {
+    grid-area: principal;
+  }
+
+  .fila__flecha {
+    grid-area: flecha;
+  }
+
+  .fila > :nth-child(3) {
+    grid-area: detalle;
+  }
+
+  .fila__estado {
+    grid-area: estado;
+    justify-content: flex-start;
+  }
+
+  .mosaicos--filtro {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ── Estados (carga, vacío, error, permisos) con los Handys ──────────── */
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: var(--color-hueso);
+}
+
+.estado__handy {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  flex: none;
+}
+
+.estado--loading .estado__handy {
+  animation: girar 2.4s linear infinite;
+}
+
+.estado__icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--color-noche);
+  color: var(--color-amarillo);
+}
+
+.estado__texto h3 {
+  font-family: var(--fuente-titulos);
+  font-weight: 900;
+  font-size: 1.05rem;
+  color: var(--color-tinta);
+}
+
+.estado__texto p {
+  font-size: 0.92rem;
+  color: var(--color-texto-suave);
+}
+
+.estado__dependencia {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 10px;
+  border-radius: var(--radio-pastilla);
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-azul);
+}
+
+.estado + .boton {
+  margin-top: 14px;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

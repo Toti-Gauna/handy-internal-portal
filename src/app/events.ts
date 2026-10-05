@@ -1,6 +1,11 @@
-import { root, readRoute, requestState, specialistFilters, userFilters } from "./state.ts";
-import { readSpecialistFilters, readUserFilters } from "./filters.ts";
-import { loadSpecialists, loadUsers, renderApp } from "./render.ts";
+import { preEspecialistaFilters, preregistroTab, preUsuarioFilters, readRoute, requestState, root, specialistFilters } from "./state.ts";
+import { readPreregistroFilters, readSpecialistFilters, setContactFilter, toggleRubro } from "./filters.ts";
+import { loadPreregistros, loadSpecialists, renderApp } from "./render.ts";
+
+function debounce(key: "specialistDebounce" | "preregistroDebounce", run: () => void): void {
+  window.clearTimeout(requestState[key]);
+  requestState[key] = window.setTimeout(run, 180);
+}
 
 root.addEventListener("input", (event: Event) => {
   const target = event.target;
@@ -9,14 +14,17 @@ root.addEventListener("input", (event: Event) => {
   if (target.id === "specialist-search") {
     specialistFilters.search = target.value;
     specialistFilters.page = 1;
-    window.clearTimeout(requestState.specialistDebounce);
-    requestState.specialistDebounce = window.setTimeout(() => void loadSpecialists(), 180);
+    debounce("specialistDebounce", () => void loadSpecialists());
   }
-  if (target.id === "user-search") {
-    userFilters.search = target.value;
-    userFilters.page = 1;
-    window.clearTimeout(requestState.userDebounce);
-    requestState.userDebounce = window.setTimeout(() => void loadUsers(), 180);
+  if (target.id === "especialista-busqueda") {
+    preEspecialistaFilters.search = target.value;
+    preEspecialistaFilters.page = 1;
+    debounce("preregistroDebounce", () => void loadPreregistros());
+  }
+  if (target.id === "usuario-busqueda") {
+    preUsuarioFilters.search = target.value;
+    preUsuarioFilters.page = 1;
+    debounce("preregistroDebounce", () => void loadPreregistros());
   }
 });
 
@@ -29,16 +37,37 @@ root.addEventListener("change", (event: Event) => {
     specialistFilters.page = 1;
     void loadSpecialists();
   }
-  if (target.id === "user-state") {
-    readUserFilters();
-    userFilters.page = 1;
-    void loadUsers();
+  if (target.closest("#especialista-filtros, #usuario-filtros")) {
+    readPreregistroFilters();
+    void loadPreregistros();
   }
 });
 
 root.addEventListener("submit", (event: SubmitEvent) => {
   event.preventDefault();
 });
+
+function syncPressed(selector: string, isCurrent: (button: HTMLButtonElement) => boolean, currentClass: string): void {
+  root.querySelectorAll<HTMLButtonElement>(selector).forEach((button) => {
+    const current = isCurrent(button);
+    button.classList.toggle(currentClass, current);
+    button.setAttribute("aria-pressed", String(current));
+  });
+}
+
+async function copyMessage(button: HTMLButtonElement): Promise<void> {
+  const text = document.getElementById(button.dataset.target ?? "")?.textContent ?? "";
+  const label = button.querySelector("span");
+  try {
+    await navigator.clipboard.writeText(text);
+    if (label) label.textContent = "¡Copiado!";
+  } catch {
+    if (label) label.textContent = "No se pudo copiar";
+  }
+  window.setTimeout(() => {
+    if (label) label.textContent = "Copiar mensaje";
+  }, 2000);
+}
 
 root.addEventListener("click", (event: MouseEvent) => {
   if (!(event.target instanceof Element)) return;
@@ -50,54 +79,51 @@ root.addEventListener("click", (event: MouseEvent) => {
     window.location.assign(window.location.pathname);
     return;
   }
-  if (action === "toggle-nav") {
-    const expanded = button.getAttribute("aria-expanded") === "true";
-    button.setAttribute("aria-expanded", String(!expanded));
-    button.setAttribute("aria-label", expanded ? "Abrir navegación" : "Cerrar navegación");
-    document.body.classList.toggle("nav-open", !expanded);
-    return;
-  }
   if (action === "retry-specialists") {
     void loadSpecialists();
     return;
   }
-  if (action === "retry-users") {
-    void loadUsers();
+  if (action === "retry-preregistros") {
+    void loadPreregistros();
+    return;
+  }
+  if (action === "copy-message") {
+    void copyMessage(button);
+    return;
+  }
+  if (action === "filter-rubro") {
+    const onList = preregistroTab(readRoute()) === "especialistas";
+    toggleRubro(button.dataset.rubro ?? "", !onList);
+    if (!onList) {
+      window.location.hash = "#/preregistros";
+      return;
+    }
+    syncPressed("[data-action='filter-rubro']", (item) => item.dataset.rubro === preEspecialistaFilters.rubro, "mosaico--actual");
+    void loadPreregistros();
+    return;
+  }
+  if (action === "filter-contacto") {
+    setContactFilter(button.dataset.contacto ?? "any");
+    void loadPreregistros();
     return;
   }
 
   const direction = button.dataset.pageAction;
-  if (direction === "previous" || direction === "next") {
-    if (readRoute().section === "especialistas") {
-      specialistFilters.page = Math.max(1, specialistFilters.page + (direction === "next" ? 1 : -1));
-      void loadSpecialists();
-    } else if (readRoute().section === "usuarios") {
-      userFilters.page = Math.max(1, userFilters.page + (direction === "next" ? 1 : -1));
-      void loadUsers();
-    }
+  if (direction !== "previous" && direction !== "next") return;
+  const step = direction === "next" ? 1 : -1;
+  const route = readRoute();
+  if (route.section === "especialistas") {
+    specialistFilters.page = Math.max(1, specialistFilters.page + step);
+    void loadSpecialists();
+  } else if (preregistroTab(route) === "especialistas") {
+    preEspecialistaFilters.page = Math.max(1, preEspecialistaFilters.page + step);
+    void loadPreregistros();
+  } else if (preregistroTab(route) === "usuarios") {
+    preUsuarioFilters.page = Math.max(1, preUsuarioFilters.page + step);
+    void loadPreregistros();
   }
 });
 
 window.addEventListener("hashchange", () => {
-  document.body.classList.remove("nav-open");
-  renderApp();
-});
-
-document.addEventListener("click", (event: MouseEvent) => {
-  if (!document.body.classList.contains("nav-open")) return;
-  if (!(event.target instanceof Element)) return;
-  if (event.target.closest(".sidebar, .menu-toggle")) return;
-  document.body.classList.remove("nav-open");
-  const toggle = root.querySelector<HTMLButtonElement>("[data-action='toggle-nav']");
-  toggle?.setAttribute("aria-expanded", "false");
-  toggle?.setAttribute("aria-label", "Abrir navegación");
-});
-
-window.addEventListener("keydown", (event: KeyboardEvent) => {
-  if (event.key !== "Escape" || !document.body.classList.contains("nav-open")) return;
-  document.body.classList.remove("nav-open");
-  const toggle = root.querySelector<HTMLButtonElement>("[data-action='toggle-nav']");
-  toggle?.setAttribute("aria-expanded", "false");
-  toggle?.setAttribute("aria-label", "Abrir navegación");
-  toggle?.focus();
+  void renderApp().then(() => window.scrollTo({ top: 0 }));
 });

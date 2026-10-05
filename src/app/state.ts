@@ -1,6 +1,7 @@
 import type { PortalSection } from "../components/frame.ts";
 import { DemoPortalDataSource } from "../data/portal-source.ts";
-import type { SpecialistSearch, UserSearch } from "../domain/directories.ts";
+import type { SpecialistSearch } from "../domain/directories.ts";
+import type { EspecialistaPreSearch, UsuarioPreSearch } from "../domain/preregistros.ts";
 import { shouldShowSyntheticPreview, type SessionState } from "../security/access.ts";
 
 export interface Route {
@@ -26,21 +27,41 @@ export const specialistFilters: SpecialistSearch = {
   enabled: "any",
   activity: "any",
   page: 1,
-  pageSize: 5,
+  pageSize: 8,
 };
 
-export const userFilters: UserSearch = {
+export const preEspecialistaFilters: EspecialistaPreSearch = {
   search: "",
-  state: "any",
+  rubro: "any",
+  cuit: "any",
+  contacto: "any",
+  orden: "recientes",
   page: 1,
-  pageSize: 5,
+  pageSize: 8,
 };
 
-export const requestState = { specialistRequest: 0, userRequest: 0, specialistDebounce: 0, userDebounce: 0 };
+export const preUsuarioFilters: UsuarioPreSearch = {
+  search: "",
+  orden: "recientes",
+  page: 1,
+  pageSize: 8,
+};
+
+export const requestState = { specialistRequest: 0, preregistroRequest: 0, specialistDebounce: 0, preregistroDebounce: 0 };
+
+/** Sub-rutas de Pre-registros que son pestañas, no IDs de ficha. */
+export const preregistroTabs = ["especialistas", "usuarios"] as const;
+export type PreregistroTab = (typeof preregistroTabs)[number];
+
+export function preregistroTab(route: Route): PreregistroTab | undefined {
+  if (route.section !== "preregistros") return undefined;
+  if (!route.id) return "especialistas";
+  return (preregistroTabs as readonly string[]).includes(route.id) ? (route.id as PreregistroTab) : undefined;
+}
 
 export function readRoute(): Route {
   const hash = window.location.hash || "#/inicio";
-  const match = /^#\/(inicio|especialistas|usuarios|operaciones)(?:\/([^/]+))?\/?$/.exec(hash);
+  const match = /^#\/(inicio|preregistros|especialistas)(?:\/([^/]+))?\/?$/.exec(hash);
   if (!match) return { section: "inicio" };
 
   const section = match[1] as PortalSection;

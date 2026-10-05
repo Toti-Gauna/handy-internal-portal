@@ -1,0 +1,238 @@
+/* Estructura: header como el de la landing y barra inferior como la de la app en el celular. */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #fff;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.header__interior {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 76px;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-decoration: none;
+}
+
+.logo__marca {
+  width: 132px;
+  height: auto;
+}
+
+.logo__bajada {
+  font-family: var(--fuente-titulos);
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-stretch: 110%;
+  letter-spacing: 0.04em;
+  color: var(--color-azul);
+}
+
+.nav {
+  display: flex;
+  gap: 6px;
+  margin-inline: auto;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--color-tinta);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-link:hover {
+  background: var(--color-hueso);
+}
+
+.nav-link--actual,
+.nav-link--actual:hover {
+  background: var(--color-mosaico);
+  color: var(--color-azul);
+}
+
+.nav-link__badge {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding-inline: 6px;
+  border-radius: var(--radio-pastilla);
+  background: var(--color-amarillo);
+  color: var(--color-tinta);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.header__salir {
+  flex: none;
+}
+
+.aviso-muestra {
+  background: var(--color-noche);
+  color: rgb(255 255 255 / 0.86);
+  font-size: 0.875rem;
+}
+
+.aviso-muestra__interior {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 9px;
+}
+
+.aviso-muestra__etiqueta {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: 8px;
+  background: var(--color-amarillo);
+  color: var(--color-tinta);
+  font-family: var(--fuente-titulos);
+  font-weight: 900;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.contenido {
+  padding-block: 36px 72px;
+}
+
+.contenido:focus {
+  outline: none;
+}
+
+/* ── Celular: la navegación baja a una barra azul como la de la app ──── */
+
+@media (max-width: 820px) {
+  body {
+    padding-bottom: 84px;
+  }
+
+  .header__interior {
+    min-height: 64px;
+  }
+
+  .logo__marca {
+    width: 108px;
+  }
+
+  .header__salir {
+    margin-left: auto;
+  }
+
+  .header__salir span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .nav {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 30;
+    justify-content: space-around;
+    gap: 0;
+    padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+    border-radius: var(--radio-lg) var(--radio-lg) 0 0;
+    background: var(--color-azul);
+    box-shadow: 0 -8px 24px -12px rgb(14 29 54 / 0.45);
+  }
+
+  .nav-link,
+  .nav-link:hover {
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 12px 10px;
+    background: transparent;
+    color: rgb(255 255 255 / 0.72);
+    font-size: 0.75rem;
+  }
+
+  .nav-link .nav-link__icono {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .nav-link--actual,
+  .nav-link--actual:hover {
+    background: transparent;
+    color: #fff;
+  }
+
+  .nav-link--actual::after {
+    content: "";
+    position: absolute;
+    bottom: 2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-amarillo);
+  }
+
+  .nav-link__badge {
+    position: absolute;
+    top: 0;
+    right: 6px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.68rem;
+  }
+
+  .aviso-muestra__interior {
+    align-items: flex-start;
+    font-size: 0.8rem;
+  }
+
+  .contenido {
+    padding-block: 24px 40px;
+  }
+}
+
+/* ── Pantalla de acceso ──────────────────────────────────────────────── */
+
+.acceso {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background-color: var(--color-hueso);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect x='6' y='6' width='84' height='84' rx='22' fill='%23ECECEC'/%3E%3C/svg%3E");
+  background-size: 96px 96px;
+}
+
+.acceso__tarjeta {
+  display: grid;
+  gap: 16px;
+  width: min(520px, 100%);
+  padding: clamp(24px, 5vw, 40px);
+  border-radius: var(--radio-xl);
+  background: #fff;
+  box-shadow: 0 24px 40px -28px rgb(14 29 54 / 0.4);
+}
+
+.logo--acceso {
+  margin-bottom: 8px;
+}
+
+.titulo--acceso {
+  font-size: clamp(2rem, 6vw, 2.6rem);
+}

@@ -43,6 +43,8 @@ export interface SpecialistRecord {
   contractAcceptance: { accepted: boolean; version?: string; date?: string };
   payoutAccount: "not_linked" | "linked_name_confirmed";
   timeline: OperationalEvent[];
+  /** Pre-registro de la landing que originó la ficha, si lo hubo. */
+  preregistroId?: string;
 }
 
 export const stageLabels: Record<SpecialistStage, string> = {
@@ -60,6 +62,8 @@ export const preRegistrationStages = new Set<SpecialistStage>([
   "contactado",
   "comprometido",
 ]);
+
+export const postRegistrationStages = specialistStages.filter((stage) => !preRegistrationStages.has(stage));
 
 export function stageGroup(stage: SpecialistStage): "pre_registro" | "post_registro" {
   return preRegistrationStages.has(stage) ? "pre_registro" : "post_registro";

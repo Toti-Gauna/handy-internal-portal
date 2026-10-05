@@ -1,6 +1,6 @@
 # Handy · Portal interno
 
-Portal web modular para operación interna. Este primer corte es una **vista de referencia**: muestra módulos y estados con registros sintéticos, sin autenticación conectada, sin API operativa y sin persistencia.
+Portal interno de Eclipse para operar Handy. Se enfoca en trabajar los **pre-registros de la landing**: quién se anotó, a quién hay que escribirle por WhatsApp y en qué etapa OPS-01 está cada especialista. Este corte es una **vista de referencia**: muestra módulos y estados con registros sintéticos, sin autenticación conectada, sin API operativa y sin persistencia.
 
 La autenticación y autorización del portal dependen de decisiones y contratos backend aún pendientes. No uses la vista de referencia para operar cuentas reales. El ingreso a la interfaz de muestra no habilita acceso a datos reales y todas las acciones operativas permanecen bloqueadas.
 
@@ -34,4 +34,5 @@ npm run build
 - [Arquitectura frontend](docs/architecture/frontend.md)
 - [Seguridad](docs/architecture/security.md)
 - [Flujo del portal operativo](docs/modules/portal-operativo.md)
+- [Pre-registros de la landing y propuesta de contrato](docs/modules/preregistros.md)
 - [ADR de stack provisional](docs/adr/ADR-0001-stack-web-provisional.md)

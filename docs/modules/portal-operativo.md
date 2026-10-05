@@ -4,25 +4,26 @@ type: "module"
 status: "provisional"
 owner: "Tech"
 updated: "2026-10-05"
-related: ["OPS-01", "MET-01", "PROD-01", "TECH-03", "TECH-06", "TECH-08", "TECH-15", "TECH-28", "LEG-08", "LEG-09", "LEG-36"]
+related: ["OPS-01", "MET-01", "PROD-01", "TECH-03", "TECH-06", "TECH-08", "TECH-15", "TECH-28", "LEG-08", "LEG-09", "LEG-36", "PORTAL-MODULE-PREREGISTROS"]
 ---
 
 # Portal operativo Handy
 
 ## Propósito y alcance
 
-Preparar la estructura web para operar el registro de especialistas, localizar cuentas de usuario y reunir herramientas manuales. El alcance funcional sigue a PROD-01 y OPS-01. Esta implementación es una vista de referencia: hasta que exista API segura, solo permite recorrer datos inventados.
+Portal interno de Eclipse para operar Handy, enfocado en lo que se usa hoy: trabajar los pre-registros de la landing y seguir a los especialistas por el embudo OPS-01. El alcance funcional sigue a PROD-01 y OPS-01. Esta implementación es una vista de referencia: hasta que exista una API segura, solo permite recorrer datos inventados.
 
-Fuera de alcance: campañas, CRM de ventas, mensajería masiva, automatizaciones, soporte de tickets completo, analítica avanzada y handbook editable.
+Fuera de alcance: campañas, CRM de ventas, mensajería masiva, automatizaciones, soporte de tickets completo, analítica avanzada, handbook editable y exportación de datos personales.
 
 ## Pantallas
 
 | Módulo | Entradas visibles | Estado de implementación |
 |---|---|---|
-| Inicio | Conteo de muestra por etapa, separación pre/post-registro, seguimientos ficticios | Disponible solo en modo de muestra; no incluye metas |
-| Especialistas | Filtros por rubro, zona, etapa, nivel de verificación, habilitado y actividad; paginación; ficha y línea de tiempo | Filtros locales sobre fixtures; transición y seguimiento bloqueados |
-| Usuarios | Búsqueda, filtro de estado ficticio y ficha mínima | Consulta ficticia; edición y baja ausentes |
-| Operaciones | Pedidos sin oferta, conciliación y acciones mínimas de consola | Bloqueado por TECH-15, TECH-28, TECH-06 y TECH-08 |
+| Inicio | Contadores de pre-registros, cola "Para contactar", especialistas anotados por rubro y embudo OPS-01 (pre y post-registro) | Solo en modo de muestra; no incluye metas |
+| Pre-registros | Especialistas y usuarios del formulario de la landing; ver [Pre-registros](preregistros.md) | Filtros locales sobre fixtures; abrir WhatsApp y registrar contacto, bloqueados |
+| Especialistas | Desde Verificado hasta Activo: filtros por rubro, etapa, verificación, habilitado y actividad; ficha y línea de tiempo | Filtros locales sobre fixtures; transición bloqueada |
+
+Se quitaron las secciones Usuarios (cuentas de la app) y Operaciones (pedidos sin oferta, conciliación), que solo mostraban pantallas bloqueadas sin uso. Vuelven cuando TECH-03/LEG-36 y TECH-15/TECH-28 cierren sus contratos.
 
 ## Embudo OPS-01
 
@@ -38,7 +39,7 @@ El embudo mantiene las etapas pre-registro separadas de las post-registro:
 | Post-registro | Habilitado | Verificado y registrado; recién aquí recibe pedidos |
 | Post-registro | Activo | Estado derivado definido por MET-01; no es transición manual |
 
-La interfaz muestra intentos de contacto y conversaciones efectivas como eventos distintos. No habilita saltos de etapa. La transición real necesita validación transaccional, actor, fecha, motivo breve y seguimiento en servidor.
+Identificado, Contactado y Comprometido se trabajan en Pre-registros; desde Verificado, en Especialistas. La interfaz muestra intentos de contacto y conversaciones efectivas como eventos distintos. No habilita saltos de etapa. La transición real necesita validación transaccional, actor, fecha, motivo breve y seguimiento en servidor.
 
 ## Ficha del especialista
 
@@ -48,17 +49,13 @@ El bloque “paso que falta” explica requisitos sin permitir completar una ver
 
 ## Directorios y paginación
 
-Los tipos `SpecialistSearch` y `UserSearch` son estructuras internas para la vista de muestra. No son contratos backend. `DemoPortalDataSource` filtra el conjunto ficticio y devuelve solo una página al render. Producción necesita búsqueda, filtros, orden permitido y paginación en servidor, con límites e índices según TECH-03.
+Los tipos `SpecialistSearch`, `EspecialistaPreSearch` y `UsuarioPreSearch` son estructuras internas para la vista de muestra. No son contratos backend. `DemoPortalDataSource` filtra el conjunto ficticio y devuelve solo una página al render. Producción necesita búsqueda, filtros, orden permitido y paginación en servidor, con límites e índices según TECH-03.
 
-## Usuarios
+## Pendientes fuera de pantalla
 
-La ficha de muestra contiene solo un ID ficticio, fecha ficticia y estado de ejemplo. No expone chat, direcciones, teléfono, ubicación ni medios de pago. No existe edición, suspensión, bloqueo o borrado manual. LEG-36 debe definir el flujo de baja.
-
-## Operaciones
-
-- Pedido sin oferta: no se cargan registros hasta que TECH-15 cierre criterios, campos, permisos y acciones.
-- Conciliación: no se consulta un API hasta que TECH-28 y los contratos de pagos definan estados permitidos.
-- Acciones mínimas de PROD-01 —aprobar alta, ofrecer pedido a especialista registrado, ver deudas y reportes— están visibles como bloqueadas, sin efectuar llamadas.
+- Cuentas de usuarios de la app: sin pantalla hasta que TECH-03 defina la lectura y LEG-36 la baja.
+- Pedido sin oferta (TECH-15) y conciliación (TECH-28): sin pantalla hasta que existan sus contratos.
+- Acciones mínimas de PROD-01 (aprobar alta, ofrecer pedido, ver deudas y reportes): pendientes de TECH-06.
 
 ## Seguridad y errores
 
@@ -66,7 +63,7 @@ La ruta normal deniega por defecto. Ninguna autorización depende solo de oculta
 
 ## APIs y datos
 
-**APIs consumidas: ninguna.** El repositorio no contiene contratos actuales, URL base, cliente HTTP ni endpoints administrativos. No se crean rutas supuestas. No hay datos persistidos ni migraciones.
+**APIs consumidas: ninguna.** El repositorio no contiene contratos aprobados, URL base, cliente HTTP ni endpoints administrativos. La lectura de pre-registros tiene una propuesta documentada en [Pre-registros](preregistros.md), sin implementar. No hay datos persistidos ni migraciones.
 
 ## Dependencias y decisiones pendientes
 
@@ -82,4 +79,4 @@ La ruta normal deniega por defecto. Ninguna autorización depende solo de oculta
 
 ## Verificación
 
-Los tests unitarios cubren filtros combinados, límites de paginación y denegación de acciones en sesión anónima/demo/sin decisión server-side. El build verifica TypeScript y empaqueta la vista; ninguna prueba reemplaza la autorización de backend pendiente.
+Los tests unitarios cubren filtros combinados, límites de paginación, la lógica de pre-registros (estado de contacto, cola, WhatsApp) y la denegación de acciones en sesión anónima, en la demo o sin decisión server-side. El build verifica TypeScript y empaqueta la vista; ninguna prueba reemplaza la autorización de backend pendiente.

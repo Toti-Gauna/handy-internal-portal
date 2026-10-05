@@ -23,6 +23,7 @@ Este repositorio es una vista de referencia del portal interno de Handy. Los con
 ## Módulos y flujos
 
 - [Portal operativo](modules/portal-operativo.md)
+- [Pre-registros de la landing](modules/preregistros.md): incluye la propuesta de contrato de lectura y registro de contactos
 
 ## Decisiones técnicas
 
