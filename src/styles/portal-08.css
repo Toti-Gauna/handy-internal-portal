@@ -1,0 +1,40 @@
+
+.filter-control select,
+.filter-control input {
+  height: 40px;
+}
+
+.data-table th,
+.data-table td {
+  padding-block: 13px;
+}
+
+.stage-chip,
+.boolean-chip,
+.status-pill,
+.milestone-state,
+.blocked-action > span,
+.timeline-item__top time,
+.timeline-item__body small,
+.safe-value-note,
+.timeline-note,
+.action-list__item small,
+.access-card__footnote {
+  font-size: 10px;
+}
+
+@media (max-width: 600px) {
+  .topbar > .button {
+    font-size: 10px;
+  }
+
+  .filter-control select,
+  .filter-control input {
+    height: 38px;
+    font-size: 11px;
+  }
+
+  .pagination {
+    font-size: 11px;
+  }
+}

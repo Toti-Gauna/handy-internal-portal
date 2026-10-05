@@ -1,0 +1,21 @@
+/* Handy brand palette and typography, aligned with Handy-landing-page-fe/src/brand/tokens.ts. */
+:root {
+  --handy-blue: #1f57a8;
+  --handy-blue-ui: #4a72b0;
+  --handy-blue-vivid: #2f6bff;
+  --handy-yellow: #f5f59a;
+  --handy-ink: #0e1d36;
+  --handy-text: #26324a;
+  --handy-muted: #5f6b84;
+  --handy-page: #f7f6f1;
+  --handy-card: #ffffff;
+  --handy-tile: #ececec;
+  --handy-line: #dadfe8;
+  --handy-green: #1e9e57;
+  --handy-error: #d93025;
+  --handy-font-display: "Archivo", "Arial Black", system-ui, sans-serif;
+  --handy-font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --handy-radius-sm: 10px;
+  --handy-radius-md: 16px;
+  --handy-radius-lg: 24px;
+}
