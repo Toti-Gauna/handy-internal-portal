@@ -4,7 +4,7 @@ type: "module"
 status: "provisional"
 owner: "Tech"
 updated: "2026-10-05"
-related: ["OPS-01", "TECH-03", "TECH-06", "TECH-08", "LEG-09", "LEG-36"]
+related: ["OPS-01", "TECH-03", "TECH-06", "TECH-08", "LEG-09", "LEG-36", "PORTAL-API-LANDING-BE"]
 ---
 
 # Pre-registros de la landing
@@ -13,7 +13,7 @@ related: ["OPS-01", "TECH-03", "TECH-06", "TECH-08", "LEG-09", "LEG-36"]
 
 Trabajar los pre-registros que entran por el formulario de la landing (`Handy-landing-page-fe`, ruta `/registro/`) para acelerar el contacto con especialistas: ver quién se anotó, a quién hay que escribirle, escribirle por WhatsApp con un mensaje listo y dejar registrado el resultado del contacto según OPS-01.
 
-Estado: **vista de referencia con datos ficticios.** El backend de la landing (`Handy-landing-page-be`) todavía no tiene código, y el portal no tiene autenticación. La lectura real y el registro de contactos dependen de la propuesta de contrato de abajo.
+Estado: **vista de referencia con datos ficticios, con el adaptador HTTP listo.** El backend de la landing (`Handy-landing-page-be`) todavía no tiene código, y el portal no tiene autenticación. La lectura real y el registro de contactos dependen del [contrato propuesto](../api/landing-be.md).
 
 ## Origen de los datos
 
@@ -24,7 +24,7 @@ El formulario valida con `src/schema/preregistro.ts` de la landing (copia sincro
 | Especialista | `nombre`, `whatsapp` (obligatorio), `email`, `rubros[]` (6 valores), `zona` (texto libre), `cuit` (`si` · `no` · `en_tramite`), `acepta` |
 | Usuario | `nombre`, `email`, `barrio`, `whatsapp?`, `necesidad?`, `acepta` |
 
-Campos que agrega el servidor: `id` y `creadoEn`. Para especialistas, además: `etapa` (`identificado` · `contactado` · `comprometido`), `eventos[]`, `proximoSeguimiento?` y `especialistaId?`. El honeypot `sitio_web` nunca se persiste ni se muestra.
+Campos que agrega el servidor: `id` y `creadoEn`. Para especialistas, además: `etapa` (`identificado` · `contactado` · `comprometido`), `eventos[]`, `proximoSeguimiento?` y `especialistaId?`. Para usuarios, el portal recibe `dejoWhatsapp` en lugar del email y el WhatsApp. El honeypot `sitio_web` nunca se persiste ni se muestra.
 
 Si cambia el esquema de la landing, se actualiza este tipo en el mismo cambio.
 
@@ -35,7 +35,7 @@ Si cambia el esquema de la landing, se actualiza este tipo en el mismo cambio.
 | Inicio | Contadores (para contactar, especialistas, usuarios, comprometidos), cola **Para contactar**, mosaico por rubro y embudo OPS-01 | Ir a la ficha; tocar un rubro filtra la lista |
 | Pre-registros · Especialistas | Pestañas por estado de contacto con conteos, filtro por rubro (mosaicos), CUIT, búsqueda (nombre, zona, email, WhatsApp con o sin formato), orden por fecha y paginación | Abrir ficha |
 | Ficha de especialista | Datos del formulario, etapa (Identificado → Contactado → Comprometido → Verificado), mensaje de WhatsApp sugerido, paso que falta, línea de tiempo de contactos | Abrir WhatsApp, copiar mensaje y registrar contacto (WhatsApp y registro bloqueados en la muestra) |
-| Pre-registros · Usuarios | Nombre, barrio, necesidad, fecha y canal de aviso. Búsqueda por nombre, barrio, email o necesidad | Abrir ficha, solo lectura |
+| Pre-registros · Usuarios | Nombre, barrio, necesidad, fecha y si dejó WhatsApp (sin el número). Búsqueda por nombre, barrio, email o necesidad | Abrir ficha, solo lectura |
 
 ## Reglas de contacto (OPS-01)
 
@@ -63,21 +63,16 @@ La política de privacidad de la landing dice:
 
 Esta decisión de campos visibles necesita confirmación con LEG-09 antes de conectar datos reales. No se muestran notas libres. La exportación (CSV) no está incluida.
 
-## Propuesta de contrato (no aprobada)
+## Conexión con el backend
 
-Propuesta para `Handy-landing-page-be`, sujeta a TECH-03 (modelo y DTOs), TECH-06 (alcance y permisos) y TECH-08 (autenticación por endpoint). **No existe todavía**: el portal no la consume y `PendingPortalDataSource` devuelve un bloqueo.
+El contrato completo (endpoints públicos de la landing y `/admin/*` del portal, errores, CORS, sesión y transiciones) está en [Contrato de Handy-landing-page-be](../api/landing-be.md).
 
-Todos los endpoints `/admin/*` requieren sesión de personal autorizado verificada en servidor y responden 401/403 sin detalles. Nunca se exponen al navegador público de la landing.
+En el frontend:
 
-| Método y ruta | Uso | Notas |
-|---|---|---|
-| `GET /admin/preregistros?tipo=especialista&q=&rubro=&cuit=&contacto=&orden=&page=&pageSize=` | Lista paginada | Filtros y paginación en servidor; `pageSize` máximo 50; índices por `tipo`, `creado_en` y `etapa` |
-| `GET /admin/preregistros?tipo=usuario&q=&orden=&page=&pageSize=` | Lista de usuarios | Sin `email`/`whatsapp` en la respuesta; `q` puede matchear email del lado del servidor |
-| `GET /admin/preregistros/conteos` | Contadores e insignias | `{ especialistas, usuarios, porEstado, porRubro }` |
-| `GET /admin/preregistros/:id` | Ficha | Especialista con `whatsapp` y `email`; usuario sin ellos |
-| `POST /admin/preregistros/:id/eventos` | Registrar contacto | Cuerpo: `{ tipo: "intento" \| "conversacion" \| "compromiso", motivo (≤140), proximoSeguimiento? }`. El servidor valida la transición, fija actor y fecha y audita. Sin edición ni borrado de eventos |
-
-Respuesta de lista: `{ rows, total, page, pageSize, totalPages }`, la misma forma que `PageResult` en el frontend.
+- `src/contracts/landing-api.ts`: esquemas zod de las respuestas. Los enums son copia del esquema de la landing.
+- `src/data/http-source.ts`: `HttpPortalDataSource`. Arma los filtros en la query, manda la cookie de sesión, valida cada respuesta y normaliza los errores en `PortalSourceError`, sin detalles internos.
+- `src/app/state.ts` elige la fuente: muestra con `?demo=1`, HTTP si hay `VITE_API_BASE_URL` y bloqueo explícito si no. Las rutas internas siguen denegadas mientras no exista sesión autorizada (TECH-08), aunque haya URL configurada.
+- Las páginas leen solo de `PortalDataSource`, nunca de los fixtures. Conectar el backend no requiere tocar pantallas.
 
 ## Pendientes
 
@@ -90,5 +85,7 @@ Respuesta de lista: `{ rows, total, page, pageSize, totalPages }`, la misma form
 | LEG-36 | Flujo de baja de pre-registros pedida por email |
 
 ## Verificación
+
+`src/data/http-source.test.ts` cubre el adaptador HTTP: query de filtros, cookie de sesión, validación de respuestas, errores normalizados, 404 en la ficha, validación antes de registrar un contacto y que la muestra nunca entregue el email de usuarios.
 
 `src/domain/preregistros.test.ts` cubre: estado de contacto derivado (un intento no mueve la etapa), filtros combinados, búsqueda por WhatsApp sin formato, orden, conteos por estado, cola de contacto, búsqueda de usuario por email, normalización de WhatsApp, mensajes sugeridos y que los fixtures sean ficticios y estén vinculados con Especialistas.

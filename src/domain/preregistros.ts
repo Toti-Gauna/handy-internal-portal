@@ -3,12 +3,12 @@
 // contacto son la propuesta de lectura documentada en docs/modules/preregistros.md.
 // Hasta que TECH-03/TECH-06/TECH-08 la aprueben, esto es un tipo interno del frontend.
 
+import { CONTACT_STATUSES_API, OPCIONES_CUIT, RUBROS, type TipoEvento } from "../contracts/landing-api.ts";
 import type { OperationalEvent } from "./specialists.ts";
 import type { PageResult } from "./directories.ts";
 import { normalize, paginate } from "./directories.ts";
 
-export const RUBROS = ["electricidad", "plomeria", "gas", "cerrajeria", "albanileria", "aire_acondicionado"] as const;
-export const OPCIONES_CUIT = ["si", "no", "en_tramite"] as const;
+export { OPCIONES_CUIT, RUBROS };
 
 export type Rubro = (typeof RUBROS)[number];
 export type OpcionCuit = (typeof OPCIONES_CUIT)[number];
@@ -32,7 +32,7 @@ export const cuitLabels: Record<OpcionCuit, string> = {
 export type PreregistroStage = "identificado" | "contactado" | "comprometido";
 
 /** Estado de contacto derivado: "con intentos" sigue siendo Identificado según OPS-01. */
-export const CONTACT_STATUSES = ["sin_contactar", "con_intentos", "contactado", "comprometido"] as const;
+export const CONTACT_STATUSES = CONTACT_STATUSES_API;
 export type ContactStatus = (typeof CONTACT_STATUSES)[number];
 
 export const contactStatusLabels: Record<ContactStatus, string> = {
@@ -45,15 +45,13 @@ export const contactStatusLabels: Record<ContactStatus, string> = {
 interface PreregistroBase {
   id: string;
   nombre: string;
-  email: string;
-  /** Fecha en que se anotó (la guarda el backend al recibir el POST). */
+  /** Fecha en que se anotó (la guarda el backend al recibir el POST). Aceptar privacidad es obligatorio para existir. */
   creadoEn: string;
-  /** Checkbox obligatorio de la landing: siempre true en un registro válido. */
-  acepta: true;
 }
 
 export interface PreregistroEspecialista extends PreregistroBase {
   tipo: "especialista";
+  email: string;
   whatsapp: string;
   rubros: Rubro[];
   zona: string;
@@ -65,11 +63,34 @@ export interface PreregistroEspecialista extends PreregistroBase {
   especialistaId?: string;
 }
 
+/** Vista de usuario que expone el backend: sin email ni WhatsApp (solo aviso de lanzamiento). */
 export interface PreregistroUsuario extends PreregistroBase {
   tipo: "usuario";
-  whatsapp?: string;
   barrio: string;
   necesidad?: string;
+  dejoWhatsapp: boolean;
+}
+
+export type ContactCounts = Record<ContactStatus | "any", number>;
+
+export interface EspecialistasPage extends PageResult<PreregistroEspecialista> {
+  /** Conteo por estado con el resto de los filtros aplicados, para las pestañas. */
+  porEstado: ContactCounts;
+}
+
+export interface PreregistroResumen {
+  especialistas: number;
+  usuarios: number;
+  porEstado: ContactCounts;
+  porRubro: Record<Rubro, number>;
+  /** Primeros de la cola de contacto (máximo 5). */
+  cola: PreregistroEspecialista[];
+}
+
+export interface ContactInput {
+  tipo: TipoEvento;
+  motivo: string;
+  proximoSeguimiento?: string;
 }
 
 export type Preregistro = PreregistroEspecialista | PreregistroUsuario;
@@ -142,29 +163,69 @@ export function filterEspecialistas(
     .sort(byDate(filters.orden));
 }
 
-export function filterUsuarios(records: PreregistroUsuario[], filters: UsuarioPreSearch): PreregistroUsuario[] {
+/** El email solo participa de la búsqueda (para atender bajas); nunca se devuelve en la vista. */
+export function filterUsuarios<T extends PreregistroUsuario & { email?: string }>(records: T[], filters: UsuarioPreSearch): T[] {
   return records
-    .filter((record) => matchesText([record.id, record.nombre, record.barrio, record.email, record.necesidad ?? ""], filters.search))
+    .filter((record) => matchesText([record.id, record.nombre, record.barrio, record.email ?? "", record.necesidad ?? ""], filters.search))
     .sort(byDate(filters.orden));
 }
 
 /** Conteo por estado sobre el resto de los filtros, para las pestañas de estado. */
-export function countByContactStatus(
-  records: PreregistroEspecialista[],
-  filters: EspecialistaPreSearch,
-): Record<ContactStatus | "any", number> {
-  const base = filterEspecialistas(records, { ...filters, contacto: "any" });
-  const counts = { any: base.length, sin_contactar: 0, con_intentos: 0, contactado: 0, comprometido: 0 };
-  for (const record of base) counts[contactStatus(record)] += 1;
+function countStatuses(records: PreregistroEspecialista[]): ContactCounts {
+  const counts = { any: records.length, sin_contactar: 0, con_intentos: 0, contactado: 0, comprometido: 0 };
+  for (const record of records) counts[contactStatus(record)] += 1;
   return counts;
 }
 
-export function searchEspecialistas(records: PreregistroEspecialista[], filters: EspecialistaPreSearch): PageResult<PreregistroEspecialista> {
-  return paginate(filterEspecialistas(records, filters), filters.page, filters.pageSize);
+export function countByContactStatus(records: PreregistroEspecialista[], filters: EspecialistaPreSearch): ContactCounts {
+  return countStatuses(filterEspecialistas(records, { ...filters, contacto: "any" }));
 }
 
-export function searchUsuarios(records: PreregistroUsuario[], filters: UsuarioPreSearch): PageResult<PreregistroUsuario> {
+export function searchEspecialistas(records: PreregistroEspecialista[], filters: EspecialistaPreSearch): EspecialistasPage {
+  return {
+    ...paginate(filterEspecialistas(records, filters), filters.page, filters.pageSize),
+    porEstado: countByContactStatus(records, filters),
+  };
+}
+
+export function searchUsuarios<T extends PreregistroUsuario & { email?: string }>(records: T[], filters: UsuarioPreSearch): PageResult<T> {
   return paginate(filterUsuarios(records, filters), filters.page, filters.pageSize);
+}
+
+/** `porEstado` cuenta solo los que siguen en pre-registro: los que ya tienen ficha de especialista se cuentan allá. */
+export function buildResumen(especialistas: PreregistroEspecialista[], usuarios: number): PreregistroResumen {
+  const porRubro = Object.fromEntries(RUBROS.map((rubro) => [rubro, especialistas.filter((record) => record.rubros.includes(rubro)).length])) as Record<Rubro, number>;
+  return {
+    especialistas: especialistas.length,
+    usuarios,
+    porEstado: countStatuses(especialistas.filter((record) => !record.especialistaId)),
+    porRubro,
+    cola: contactQueue(especialistas).slice(0, 5),
+  };
+}
+
+// ── Eventos de contacto ─────────────────────────────────────────────────
+
+const eventKinds: Record<TipoEvento, OperationalEvent["kind"]> = {
+  intento: "contact_attempt",
+  conversacion: "effective_contact",
+  compromiso: "transition",
+};
+
+const eventSummaries: Record<TipoEvento, string> = {
+  intento: "Intento de contacto sin respuesta.",
+  conversacion: "Conversación efectiva.",
+  compromiso: "Pasó a Comprometido: aceptó una fecha de alta.",
+};
+
+export function eventFromContact(
+  tipo: TipoEvento,
+  at: string,
+  actor: string,
+  motivo?: string,
+  proximoSeguimiento?: string,
+): OperationalEvent {
+  return { at, kind: eventKinds[tipo], actor, summary: eventSummaries[tipo], reason: motivo, nextFollowUp: proximoSeguimiento };
 }
 
 /** Cola de trabajo: primero los seguimientos vencidos o próximos, después los más antiguos sin contacto. */

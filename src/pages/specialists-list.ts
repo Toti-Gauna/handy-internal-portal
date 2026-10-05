@@ -1,5 +1,5 @@
-import { demoSpecialists } from "../data/demo-data.ts";
 import type { PageResult, SpecialistSearch } from "../domain/directories.ts";
+import { RUBROS, rubroLabels } from "../domain/preregistros.ts";
 import { postRegistrationStages, stageLabels, type SpecialistRecord, type VerificationLevel } from "../domain/specialists.ts";
 import { escapeHtml, formatDateTime } from "../components/escape.ts";
 import { pageHeading } from "../components/frame.ts";
@@ -23,7 +23,7 @@ function select(id: string, label: string, options: string): string {
 }
 
 export function renderSpecialistsPage(filters: SpecialistSearch): string {
-  const trades = Array.from(new Set(demoSpecialists.map((item) => item.trade))).sort();
+  const trades = RUBROS.map((rubro) => rubroLabels[rubro].nombre);
 
   return `
     ${pageHeading("Embudo OPS-01 · post-registro", "==Especialistas==", "Desde Verificado hasta Activo. Las etapas anteriores se trabajan en Pre-registros.")}

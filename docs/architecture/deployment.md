@@ -21,6 +21,17 @@ Este hosting sirve únicamente para revisar una demo no operativa con fixtures f
 - `npm install`, `npm run dev`.
 - `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
 - `GITHUB_PAGES=true npm run build` genera las rutas de assets para el sitio de Pages.
+- Variables en `.env.example`: `VITE_API_BASE_URL` (backend; vacía = sin pedidos HTTP) y `API_PROXY_TARGET` (solo para el proxy `/api` de desarrollo). Copiar a `.env.local`, que no se versiona.
+
+## Configuración por cliente
+
+| Cliente | Variable | Valor |
+|---|---|---|
+| Landing | `FORM_ENDPOINT` (variable del repo `Handy-landing-page-fe`) | URL pública de `Handy-landing-page-be` |
+| Portal · GitHub Pages | ninguna | La demo pública **no** se conecta a un backend (TECH-31) |
+| Portal · hosting operativo | `VITE_API_BASE_URL` en el build | URL de `Handy-landing-page-be`, en el mismo sitio que el portal para la cookie de sesión |
+
+El detalle de CORS y de la sesión está en [Contrato de Handy-landing-page-be](../api/landing-be.md).
 
 ## Decisiones pendientes
 

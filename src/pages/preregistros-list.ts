@@ -1,15 +1,15 @@
-import { demoPreregistrosEspecialistas, demoPreregistrosUsuarios } from "../data/demo-data.ts";
 import type { PageResult } from "../domain/directories.ts";
 import {
   CONTACT_STATUSES,
   OPCIONES_CUIT,
   RUBROS,
   contactStatusLabels,
-  countByContactStatus,
   cuitLabels,
   rubroLabels,
+  type ContactCounts,
+  type ContactStatus,
   type EspecialistaPreSearch,
-  type PreregistroEspecialista,
+  type EspecialistasPage,
   type PreregistroUsuario,
   type UsuarioPreSearch,
 } from "../domain/preregistros.ts";
@@ -24,15 +24,20 @@ function option(value: string, label: string, selected: string): string {
   return `<option value="${escapeHtml(value)}" ${selected === value ? "selected" : ""}>${escapeHtml(label)}</option>`;
 }
 
-function tabs(current: PreregistroTab): string {
-  const tab = (id: PreregistroTab, label: string, count: number, href: string): string => `
+export interface PreregistroTotals {
+  especialistas: number;
+  usuarios: number;
+}
+
+function tabs(current: PreregistroTab, totals: PreregistroTotals | null): string {
+  const tab = (id: PreregistroTab, label: string, count: number | undefined, href: string): string => `
     <a class="pestana${current === id ? " pestana--actual" : ""}" href="${href}" ${current === id ? 'aria-current="page"' : ""}>
-      ${escapeHtml(label)} <span class="pestana__numero">${count}</span>
+      ${escapeHtml(label)}${count === undefined ? "" : ` <span class="pestana__numero">${count}</span>`}
     </a>`;
   return `
     <nav class="pestanas" aria-label="Tipo de pre-registro">
-      ${tab("especialistas", "Especialistas", demoPreregistrosEspecialistas.length, "#/preregistros")}
-      ${tab("usuarios", "Usuarios", demoPreregistrosUsuarios.length, "#/preregistros/usuarios")}
+      ${tab("especialistas", "Especialistas", totals?.especialistas, "#/preregistros")}
+      ${tab("usuarios", "Usuarios", totals?.usuarios, "#/preregistros/usuarios")}
     </nav>
   `;
 }
@@ -56,23 +61,28 @@ function orderSelect(id: string, value: string): string {
   `;
 }
 
-export function renderContactStatusTabs(filters: EspecialistaPreSearch): string {
-  const counts = countByContactStatus(demoPreregistrosEspecialistas, filters);
-  const item = (value: string, label: string, count: number): string => `
+/** Sin conteos (todavía cargando o con error) se muestran las pestañas sin número. */
+export function renderContactStatusTabs(filters: EspecialistaPreSearch, counts?: ContactCounts): string {
+  const item = (value: ContactStatus | "any", label: string): string => `
     <button class="filtro-estado${filters.contacto === value ? " filtro-estado--actual" : ""}" type="button" data-action="filter-contacto" data-contacto="${value}" aria-pressed="${filters.contacto === value}">
-      ${escapeHtml(label)} <span>${count}</span>
+      ${escapeHtml(label)}${counts ? ` <span>${counts[value]}</span>` : ""}
     </button>`;
-  return `${item("any", "Todos", counts.any)}${CONTACT_STATUSES.map((status) => item(status, contactStatusLabels[status], counts[status])).join("")}`;
+  return `${item("any", "Todos")}${CONTACT_STATUSES.map((status) => item(status, contactStatusLabels[status])).join("")}`;
 }
 
-export function renderPreregistrosPage(tab: PreregistroTab, especialistas: EspecialistaPreSearch, usuarios: UsuarioPreSearch): string {
+export function renderPreregistrosPage(
+  tab: PreregistroTab,
+  especialistas: EspecialistaPreSearch,
+  usuarios: UsuarioPreSearch,
+  totals: PreregistroTotals | null,
+): string {
   const heading = pageHeading(
     "Formulario de la landing",
     "Pre-==registros==",
     tab === "especialistas"
       ? "Quién se anotó como especialista, en qué estado de contacto está y qué le falta para comprometerse."
       : "Personas que quieren usar Handy. Se les avisa del lanzamiento; no entran en el embudo de contacto.",
-    tabs(tab),
+    tabs(tab, totals),
   );
 
   if (tab === "usuarios") {
@@ -128,7 +138,7 @@ function pagination<T>(result: PageResult<T>): string {
   `;
 }
 
-export function renderEspecialistaResults(result: PageResult<PreregistroEspecialista>): string {
+export function renderEspecialistaResults(result: EspecialistasPage): string {
   if (result.total === 0) {
     return renderStatePanel("empty", "No hay pre-registros con esos filtros", "Probá sacando algún filtro o buscando de otra forma.");
   }
@@ -167,7 +177,7 @@ export function renderUsuarioResults(result: PageResult<PreregistroUsuario>): st
             <span class="fila__meta">${icon("pin")}${escapeHtml(record.barrio)} <span aria-hidden="true">·</span> Se anotó el ${escapeHtml(formatDate(record.creadoEn))}</span>
           </span>
           <span class="fila__necesidad">${record.necesidad ? `“${escapeHtml(record.necesidad)}”` : '<span class="texto-suave">Sin necesidad indicada</span>'}</span>
-          <span class="fila__estado"><span class="pastilla pastilla--neutra">${record.whatsapp ? "Email + WhatsApp" : "Email"}</span></span>
+          <span class="fila__estado"><span class="pastilla pastilla--neutra">${record.dejoWhatsapp ? "Email + WhatsApp" : "Email"}</span></span>
           <span class="fila__flecha">${icon("derecha")}</span>
         </a>
       </li>`,

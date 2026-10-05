@@ -1,6 +1,14 @@
-import { demoSpecialists } from "../data/demo-data.ts";
 import type { SpecialistSearch } from "../domain/directories.ts";
-import { CONTACT_STATUSES, OPCIONES_CUIT, RUBROS, type ContactStatus, type OpcionCuit, type Rubro, type SortOrder } from "../domain/preregistros.ts";
+import {
+  CONTACT_STATUSES,
+  OPCIONES_CUIT,
+  RUBROS,
+  rubroLabels,
+  type ContactStatus,
+  type OpcionCuit,
+  type Rubro,
+  type SortOrder,
+} from "../domain/preregistros.ts";
 import { postRegistrationStages, type SpecialistStage, type VerificationLevel } from "../domain/specialists.ts";
 import { preEspecialistaFilters, preUsuarioFilters, root, specialistFilters } from "./state.ts";
 
@@ -13,7 +21,7 @@ function oneOf<T extends string>(candidate: string, allowed: readonly T[], fallb
 }
 
 export function readSpecialistFilters(): void {
-  const trades = Array.from(new Set(demoSpecialists.map((record) => record.trade)));
+  const trades = RUBROS.map((rubro) => rubroLabels[rubro].nombre);
   const verificationLevels: VerificationLevel[] = ["sin_iniciar", "en_curso", "nivel_1", "nivel_2"];
 
   specialistFilters.trade = oneOf(value("specialist-trade"), trades);

@@ -35,7 +35,8 @@ La ficha de pre-registro de usuario es de solo lectura. No hay edición ni borra
 
 - No enviar PII a APIs de IA, logs, telemetría ni servicios externos.
 - No conectar el navegador directamente a Neon.
-- No almacenar datos administrativos ni tokens en storage del navegador.
+- No almacenar datos administrativos ni tokens en storage del navegador. La sesión propuesta es una cookie HttpOnly del backend; el portal solo manda `credentials: "include"`.
+- Validar cada respuesta del backend con zod antes de renderizar; una forma inesperada se muestra como error.
 - Escapar texto interpolado en el DOM y mantener errores sin detalles internos.
 - Abrir `wa.me` en una pestaña nueva con `rel="noopener noreferrer"`; el portal no envía mensajes por su cuenta.
 - Copiar el mensaje sugerido usa el portapapeles del navegador y no guarda nada.

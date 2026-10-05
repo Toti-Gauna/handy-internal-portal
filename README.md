@@ -15,6 +15,8 @@ npm run dev
 
 La portada explica el bloqueo de acceso. Desde allí se puede abrir una vista de muestra con datos ficticios claramente rotulados.
 
+Para apuntar a un backend, copiá `.env.example` a `.env.local`. En desarrollo, `VITE_API_BASE_URL=/api` y `API_PROXY_TARGET=http://localhost:3000` usan el proxy de Vite. Las rutas internas siguen denegadas hasta que exista autenticación (TECH-08).
+
 ## Vista de revisión
 
 [Abrir la demo en GitHub Pages](https://toti-gauna.github.io/handy-internal-portal/?demo=1#/inicio). El repositorio y el sitio son públicos. Solo contiene datos ficticios y no debe usarse para operar ni conectarse a datos reales; el hosting del portal operativo sigue pendiente.
@@ -34,5 +36,6 @@ npm run build
 - [Arquitectura frontend](docs/architecture/frontend.md)
 - [Seguridad](docs/architecture/security.md)
 - [Flujo del portal operativo](docs/modules/portal-operativo.md)
-- [Pre-registros de la landing y propuesta de contrato](docs/modules/preregistros.md)
+- [Pre-registros de la landing](docs/modules/preregistros.md)
+- [Contrato de Handy-landing-page-be](docs/api/landing-be.md)
 - [ADR de stack provisional](docs/adr/ADR-0001-stack-web-provisional.md)

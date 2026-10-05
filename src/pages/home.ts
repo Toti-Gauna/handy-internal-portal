@@ -1,6 +1,5 @@
 import grupoUrl from "../img/handys-grupo.webp";
-import { demoPreregistrosEspecialistas, demoPreregistrosUsuarios, demoSpecialists } from "../data/demo-data.ts";
-import { contactQueue, contactStatus, RUBROS, rubroLabels, type PreregistroStage } from "../domain/preregistros.ts";
+import { RUBROS, rubroLabels, type PreregistroResumen } from "../domain/preregistros.ts";
 import { postRegistrationStages, stageLabels, type SpecialistStage } from "../domain/specialists.ts";
 import { escapeHtml, formatDate, formatDateTime } from "../components/escape.ts";
 import { brandTitle } from "../components/frame.ts";
@@ -8,7 +7,7 @@ import { icon } from "../components/icons.ts";
 import { renderStatePanel } from "../components/states.ts";
 import { avatar, contactPill, rubroIcon } from "./preregistro-parts.ts";
 
-const preStages: PreregistroStage[] = ["identificado", "contactado", "comprometido"];
+const preStages = ["identificado", "contactado", "comprometido"] as const;
 
 function statTile(value: number, label: string, variant: string, href: string): string {
   return `
@@ -19,8 +18,7 @@ function statTile(value: number, label: string, variant: string, href: string): 
   `;
 }
 
-function renderQueue(): string {
-  const queue = contactQueue(demoPreregistrosEspecialistas).slice(0, 5);
+function renderQueue(queue: PreregistroResumen["cola"]): string {
   if (queue.length === 0) {
     return renderStatePanel("empty", "No hay nadie esperando contacto", "Cuando entren pre-registros nuevos de especialistas, aparecen acá.");
   }
@@ -47,9 +45,9 @@ function renderQueue(): string {
     .join("")}</ol>`;
 }
 
-function renderRubros(): string {
+function renderRubros(porRubro: PreregistroResumen["porRubro"]): string {
   return `<div class="mosaicos">${RUBROS.map((rubro) => {
-    const count = demoPreregistrosEspecialistas.filter((record) => record.rubros.includes(rubro)).length;
+    const count = porRubro[rubro] ?? 0;
     return `
       <button class="mosaico" type="button" data-action="filter-rubro" data-rubro="${rubro}">
         ${rubroIcon(rubro)}
@@ -60,34 +58,32 @@ function renderRubros(): string {
   }).join("")}</div>`;
 }
 
-function renderFunnel(): string {
-  const preCount = (stage: PreregistroStage): number =>
-    demoPreregistrosEspecialistas.filter((record) => record.etapa === stage && !record.especialistaId).length;
-  const postCount = (stage: SpecialistStage): number => demoSpecialists.filter((record) => record.stage === stage).length;
+function renderFunnel(resumen: PreregistroResumen, postCounts: Record<SpecialistStage, number> | null): string {
+  const pre = resumen.porEstado;
+  const preCounts = { identificado: pre.sin_contactar + pre.con_intentos, contactado: pre.contactado, comprometido: pre.comprometido };
   const step = (label: string, count: number, group: string, href: string): string => `
     <li><a class="embudo__paso embudo__paso--${group}" href="${href}"><strong>${count}</strong><span>${escapeHtml(label)}</span></a></li>`;
+  const post = postCounts
+    ? `<ol class="embudo embudo--post">
+      ${postRegistrationStages.map((stage) => step(stageLabels[stage], postCounts[stage], "post", "#/especialistas")).join("")}
+    </ol>`
+    : `<p class="nota">Sin datos de especialistas: falta el contrato con api-especialista (TECH-03).</p>`;
 
   return `
     <p class="embudo__grupo">Pre-registro</p>
     <ol class="embudo embudo--pre">
-      ${preStages.map((stage) => step(stageLabels[stage], preCount(stage), "pre", "#/preregistros")).join("")}
+      ${preStages.map((stage) => step(stageLabels[stage], preCounts[stage], "pre", "#/preregistros")).join("")}
     </ol>
     <p class="embudo__grupo">Post-registro</p>
-    <ol class="embudo embudo--post">
-      ${postRegistrationStages.map((stage) => step(stageLabels[stage], postCount(stage), "post", "#/especialistas")).join("")}
-    </ol>
+    ${post}
     <p class="nota">Pre-registro se trabaja en Pre-registros; desde Verificado, en Especialistas. “Activo” se deriva según MET-01.</p>
   `;
 }
 
-export function renderHomePage(): string {
-  const especialistas = demoPreregistrosEspecialistas.length;
-  const usuarios = demoPreregistrosUsuarios.length;
-  const toContact = demoPreregistrosEspecialistas.filter((record) => {
-    const status = contactStatus(record);
-    return status === "sin_contactar" || status === "con_intentos";
-  }).length;
-  const committed = demoPreregistrosEspecialistas.filter((record) => record.etapa === "comprometido").length;
+export function renderHomePage(resumen: PreregistroResumen, postCounts: Record<SpecialistStage, number> | null): string {
+  const { especialistas, usuarios } = resumen;
+  const toContact = resumen.porEstado.sin_contactar + resumen.porEstado.con_intentos;
+  const committed = resumen.porEstado.comprometido;
 
   return `
     <section class="hero">
@@ -111,7 +107,7 @@ export function renderHomePage(): string {
           <div><p class="eyebrow">Cola de trabajo</p><h2 id="cola-titulo" class="subtitulo">Para contactar</h2></div>
           <a class="link" href="#/preregistros">Ver todos ${icon("flecha")}</a>
         </div>
-        ${renderQueue()}
+        ${renderQueue(resumen.cola)}
       </section>
 
       <div class="inicio-columna">
@@ -119,7 +115,7 @@ export function renderHomePage(): string {
           <div class="tarjeta__cabecera">
             <div><p class="eyebrow">Especialistas anotados</p><h2 id="rubros-titulo" class="subtitulo">Por rubro</h2></div>
           </div>
-          ${renderRubros()}
+          ${renderRubros(resumen.porRubro)}
           <p class="nota">Un especialista puede marcar más de un rubro. Tocá uno para filtrar.</p>
         </section>
 
@@ -127,7 +123,7 @@ export function renderHomePage(): string {
           <span class="hoja__manija" aria-hidden="true"></span>
           <p class="eyebrow eyebrow--claro">Embudo OPS-01</p>
           <h2 id="embudo-titulo" class="subtitulo subtitulo--claro">Especialistas por etapa</h2>
-          ${renderFunnel()}
+          ${renderFunnel(resumen, postCounts)}
         </section>
       </div>
     </div>

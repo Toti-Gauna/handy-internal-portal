@@ -1,4 +1,4 @@
-// Fixtures ficticios. Nombres inventados, emails en example.com, WhatsApp en el bloque 223 000-xxxx
+// Fixtures ficticios. Nombres inventados, emails en example.com, WhatsApp de especialistas en el bloque 223 000-xxxx
 // (no asignado a personas reales) e IDs *-DEMO-*. Nunca reemplazar por datos reales.
 
 import type { SpecialistRecord, OperationalEvent } from "../domain/specialists.ts";
@@ -111,7 +111,7 @@ function committed(at: string): OperationalEvent {
 function pre(
   n: number,
   nombre: string,
-  values: Omit<PreregistroEspecialista, "id" | "nombre" | "email" | "tipo" | "acepta" | "etapa" | "eventos"> &
+  values: Omit<PreregistroEspecialista, "id" | "nombre" | "email" | "tipo" | "etapa" | "eventos"> &
     Partial<Pick<PreregistroEspecialista, "etapa" | "eventos">>,
 ): PreregistroEspecialista {
   const id = String(n).padStart(2, "0");
@@ -120,7 +120,6 @@ function pre(
     tipo: "especialista",
     nombre,
     email: `especialista${id}@example.com`,
-    acepta: true,
     etapa: "identificado",
     eventos: [],
     ...values,
@@ -250,24 +249,27 @@ export const demoPreregistrosEspecialistas: PreregistroEspecialista[] = [
   }),
 ];
 
+/** El email queda solo en la fuente de muestra para simular la búsqueda de bajas en servidor. */
+export type DemoUsuario = PreregistroUsuario & { email: string };
+
 function usuario(
   n: number,
   nombre: string,
-  values: Omit<PreregistroUsuario, "id" | "nombre" | "email" | "tipo" | "acepta">,
-): PreregistroUsuario {
+  values: Omit<PreregistroUsuario, "id" | "nombre" | "tipo" | "dejoWhatsapp"> & { dejoWhatsapp?: boolean },
+): DemoUsuario {
   const id = String(n).padStart(2, "0");
-  return { id: `PRE-DEMO-U${id}`, tipo: "usuario", nombre, email: `usuario${id}@example.com`, acepta: true, ...values };
+  return { id: `PRE-DEMO-U${id}`, tipo: "usuario", nombre, email: `usuario${id}@example.com`, dejoWhatsapp: false, ...values };
 }
 
-export const demoPreregistrosUsuarios: PreregistroUsuario[] = [
+export const demoPreregistrosUsuarios: DemoUsuario[] = [
   usuario(1, "Claudia R.", { barrio: "La Perla", necesidad: "Arreglar una pérdida en la cocina.", creadoEn: "2026-10-05T10:05:00-03:00" }),
-  usuario(2, "Andrés P.", { barrio: "Centro", whatsapp: "223 000-0201", creadoEn: "2026-10-05T07:48:00-03:00" }),
+  usuario(2, "Andrés P.", { barrio: "Centro", dejoWhatsapp: true, creadoEn: "2026-10-05T07:48:00-03:00" }),
   usuario(3, "Silvina M.", { barrio: "Los Troncos", necesidad: "Service del aire antes del verano.", creadoEn: "2026-10-04T22:30:00-03:00" }),
-  usuario(4, "Marcos T.", { barrio: "Puerto", necesidad: "Cambiar la cerradura de la puerta.", whatsapp: "223 000 0202", creadoEn: "2026-10-04T13:12:00-03:00" }),
+  usuario(4, "Marcos T.", { barrio: "Puerto", necesidad: "Cambiar la cerradura de la puerta.", dejoWhatsapp: true, creadoEn: "2026-10-04T13:12:00-03:00" }),
   usuario(5, "Florencia D.", { barrio: "Chauvín", creadoEn: "2026-10-03T19:40:00-03:00" }),
   usuario(6, "Germán A.", { barrio: "Constitución", necesidad: "Revisar el calefón.", creadoEn: "2026-10-03T09:02:00-03:00" }),
   usuario(7, "Verónica L.", { barrio: "San Juan", necesidad: "Humedad en una pared del living.", creadoEn: "2026-10-02T17:25:00-03:00" }),
-  usuario(8, "Nicolás B.", { barrio: "Punta Mogotes", whatsapp: "2230000203", creadoEn: "2026-10-01T12:00:00-03:00" }),
+  usuario(8, "Nicolás B.", { barrio: "Punta Mogotes", dejoWhatsapp: true, creadoEn: "2026-10-01T12:00:00-03:00" }),
   usuario(9, "Carla S.", { barrio: "Zona norte", necesidad: "Se cortó la luz en dos ambientes.", creadoEn: "2026-09-30T21:15:00-03:00" }),
   usuario(10, "Emiliano V.", { barrio: "Batán", creadoEn: "2026-09-29T08:44:00-03:00" }),
   usuario(11, "Daniela G.", { barrio: "Centro", necesidad: "Instalar un aire nuevo.", creadoEn: "2026-09-27T16:10:00-03:00" }),

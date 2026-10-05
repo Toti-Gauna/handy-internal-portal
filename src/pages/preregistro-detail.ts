@@ -73,10 +73,10 @@ function timeline(events: OperationalEvent[]): string {
     .join("")}</ol>`;
 }
 
-function contactForm(actionsEnabled: boolean): string {
+function contactForm(id: string, actionsEnabled: boolean): string {
   const choice = (value: string, title: string, detail: string, iconName: "reloj" | "chat" | "checkCirculo"): string => `
     <label class="opcion">
-      <input type="radio" name="tipo-contacto" value="${value}" />
+      <input type="radio" name="tipo-contacto" value="${value}" required />
       <span class="opcion__caja">${icon(iconName)}<span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(detail)}</small></span></span>
     </label>`;
   return `
@@ -85,19 +85,20 @@ function contactForm(actionsEnabled: boolean): string {
         <div><p class="eyebrow">Después de escribirle</p><h2 id="registrar-titulo" class="subtitulo">Registrar contacto</h2></div>
         ${actionsEnabled ? "" : `<span class="pastilla pastilla--bloqueada">${icon("candado")}Bloqueado</span>`}
       </div>
-      <form class="registro-contacto" id="registro-contacto" aria-describedby="registro-contacto-nota">
+      <form class="registro-contacto" id="registro-contacto" data-preregistro="${escapeHtml(id)}" aria-describedby="registro-contacto-nota">
         <fieldset ${actionsEnabled ? "" : "disabled"}>
           <legend class="sr-only">Qué pasó</legend>
           <div class="opciones">
-            ${choice("contact_attempt", "Sin respuesta", "Queda como intento", "reloj")}
-            ${choice("effective_contact", "Hablamos", "Pasa a Contactado", "chat")}
-            ${choice("committed", "Se comprometió", "Aceptó fecha de alta", "checkCirculo")}
+            ${choice("intento", "Sin respuesta", "Queda como intento", "reloj")}
+            ${choice("conversacion", "Hablamos", "Pasa a Contactado", "chat")}
+            ${choice("compromiso", "Se comprometió", "Aceptó fecha de alta", "checkCirculo")}
           </div>
           <div class="registro-contacto__campos">
-            <label class="campo campo--texto"><span class="campo__label">Motivo breve</span><input type="text" maxlength="140" placeholder="Ej.: pidió que le escribamos a la tarde" /></label>
-            <label class="campo campo--texto"><span class="campo__label">Próximo seguimiento</span><input type="datetime-local" /></label>
+            <label class="campo campo--texto"><span class="campo__label">Motivo breve</span><input type="text" name="motivo" required maxlength="140" placeholder="Ej.: pidió que le escribamos a la tarde" /></label>
+            <label class="campo campo--texto"><span class="campo__label">Próximo seguimiento</span><input type="datetime-local" name="proximo-seguimiento" /></label>
           </div>
           <button class="boton boton--azul" type="submit">Guardar contacto</button>
+          <p class="nota" data-contacto-estado role="status" aria-live="polite"></p>
         </fieldset>
       </form>
       <p class="nota" id="registro-contacto-nota">Guardar necesita el endpoint de eventos con actor, fecha, motivo y auditoría en servidor (propuesta en docs). Pendiente: TECH-06 · TECH-08.</p>
@@ -165,7 +166,7 @@ function renderEspecialista(record: PreregistroEspecialista, previewMode: boolea
           </dl>
           <p class="nota">Solo se muestran los campos del formulario. El WhatsApp y el email se usan para coordinar el alta, como dice la política de privacidad de la landing.</p>
         </section>
-        ${contactForm(actionsEnabled)}
+        ${contactForm(record.id, actionsEnabled)}
       </div>
 
       <aside class="ficha-columna">
@@ -204,7 +205,7 @@ function renderUsuario(record: PreregistroUsuario): string {
         <dl class="datos">
           ${dato("Barrio", escapeHtml(record.barrio))}
           ${dato("Qué necesitaría arreglar", record.necesidad ? `“${escapeHtml(record.necesidad)}”` : '<span class="texto-suave">No lo completó</span>')}
-          ${dato("Aviso de lanzamiento", record.whatsapp ? "Por email · también dejó WhatsApp" : "Por email")}
+          ${dato("Aviso de lanzamiento", record.dejoWhatsapp ? "Por email · también dejó WhatsApp" : "Por email")}
           ${dato("Privacidad", `<span class="dato-contacto">${icon("escudo")}Aceptó el aviso al anotarse</span>`)}
         </dl>
       </section>

@@ -20,10 +20,14 @@ Este repositorio es una vista de referencia del portal interno de Handy. Los con
 - [Seguridad](architecture/security.md)
 - [Entornos y publicación](architecture/deployment.md)
 
+## Contratos
+
+- [Contrato de Handy-landing-page-be](api/landing-be.md): propuesta para la landing (público) y el portal (`/admin/*`)
+
 ## Módulos y flujos
 
 - [Portal operativo](modules/portal-operativo.md)
-- [Pre-registros de la landing](modules/preregistros.md): incluye la propuesta de contrato de lectura y registro de contactos
+- [Pre-registros de la landing](modules/preregistros.md)
 
 ## Decisiones técnicas
 

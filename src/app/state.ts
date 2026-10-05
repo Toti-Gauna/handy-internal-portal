@@ -1,5 +1,7 @@
 import type { PortalSection } from "../components/frame.ts";
-import { DemoPortalDataSource } from "../data/portal-source.ts";
+import { API_BASE_URL, TIMEOUT_MS } from "../config.ts";
+import { HttpPortalDataSource } from "../data/http-source.ts";
+import { DemoPortalDataSource, PendingPortalDataSource, type PortalDataSource } from "../data/portal-source.ts";
 import type { SpecialistSearch } from "../domain/directories.ts";
 import type { EspecialistaPreSearch, UsuarioPreSearch } from "../domain/preregistros.ts";
 import { shouldShowSyntheticPreview, type SessionState } from "../security/access.ts";
@@ -16,7 +18,16 @@ export const root: HTMLDivElement = appRoot;
 export const previewMode = shouldShowSyntheticPreview(new URLSearchParams(window.location.search).get("demo") === "1");
 // No existe aún un adaptador de sesión: el estado por defecto es anónimo y deniega rutas internas.
 export const session: SessionState = "anonymous";
-export const previewSource = new DemoPortalDataSource();
+
+/**
+ * Muestra (?demo=1) → fixtures. Con VITE_API_BASE_URL → backend de la landing. Sin URL → bloqueo explícito.
+ * Mientras la sesión sea anónima, las rutas internas siguen denegadas aunque haya URL configurada.
+ */
+export const source: PortalDataSource = previewMode
+  ? new DemoPortalDataSource()
+  : API_BASE_URL
+    ? new HttpPortalDataSource(API_BASE_URL, undefined, TIMEOUT_MS)
+    : new PendingPortalDataSource();
 
 export const specialistFilters: SpecialistSearch = {
   search: "",

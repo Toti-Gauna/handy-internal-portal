@@ -85,8 +85,8 @@ test("los fixtures son ficticios y los vínculos con Especialistas existen", () 
   for (const record of [...demoPreregistrosEspecialistas, ...demoPreregistrosUsuarios]) {
     assert.match(record.id, /^PRE-DEMO-/);
     assert.match(record.email, /@example\.com$/);
-    if (record.whatsapp) assert.match(record.whatsapp.replace(/\D/g, ""), /2230000\d{3}$/);
   }
+  for (const record of demoPreregistrosEspecialistas) assert.match(record.whatsapp.replace(/\D/g, ""), /2230000\d{3}$/);
   for (const record of demoPreregistrosEspecialistas.filter((item) => item.especialistaId)) {
     assert.ok(demoSpecialists.some((specialist) => specialist.id === record.especialistaId && specialist.preregistroId === record.id));
   }

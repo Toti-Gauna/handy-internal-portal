@@ -1,6 +1,6 @@
 import { preEspecialistaFilters, preregistroTab, preUsuarioFilters, readRoute, requestState, root, specialistFilters } from "./state.ts";
 import { readPreregistroFilters, readSpecialistFilters, setContactFilter, toggleRubro } from "./filters.ts";
-import { loadPreregistros, loadSpecialists, renderApp } from "./render.ts";
+import { loadPreregistros, loadSpecialists, renderApp, submitContact } from "./render.ts";
 
 function debounce(key: "specialistDebounce" | "preregistroDebounce", run: () => void): void {
   window.clearTimeout(requestState[key]);
@@ -45,6 +45,7 @@ root.addEventListener("change", (event: Event) => {
 
 root.addEventListener("submit", (event: SubmitEvent) => {
   event.preventDefault();
+  if (event.target instanceof HTMLFormElement && event.target.id === "registro-contacto") void submitContact(event.target);
 });
 
 function syncPressed(selector: string, isCurrent: (button: HTMLButtonElement) => boolean, currentClass: string): void {
@@ -77,6 +78,10 @@ root.addEventListener("click", (event: MouseEvent) => {
   const action = button.dataset.action;
   if (action === "exit-demo") {
     window.location.assign(window.location.pathname);
+    return;
+  }
+  if (action === "reload") {
+    void renderApp();
     return;
   }
   if (action === "retry-specialists") {
