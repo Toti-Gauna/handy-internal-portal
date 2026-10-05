@@ -25,7 +25,7 @@ No se tomó React Native como stack web ni se modificaron las apps móviles. Vit
 - `src/domain`: etapas OPS-01, filtros de muestra y paginación local.
 - `src/data`: fixtures ficticios y adaptadores de fuente.
 - `src/security`: guardas frontend con denegación por defecto.
-- `src/brand` y `src/styles.css`: tokens y presentación Handy.
+- `src/brand`, `src/styles.css` y `src/styles/`: tokens y hojas CSS fragmentadas para la presentación Handy y la base de GitHub Pages.
 
 `PortalDataSource` es una interfaz interna del frontend, no un contrato REST. `DemoPortalDataSource` aplica búsqueda, filtros y paginación únicamente sobre fixtures. `PendingPortalDataSource` devuelve un bloqueo explícito; no inventa rutas ni parámetros de API.
 

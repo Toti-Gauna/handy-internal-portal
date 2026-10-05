@@ -34,4 +34,4 @@ Las flechas punteadas describen una posibilidad futura, no contratos implementad
 
 ## CI y publicación
 
-El repositorio no tenía CI ni scripts al momento de la inspección. Se agregaron comandos locales de lint, typecheck, tests y build. No se agregó workflow, hosting, proveedor, servicio pago ni publicación.
+El workflow `.github/workflows/pages.yml` corre lint, typecheck, tests y build, y publica una demo estática en GitHub Pages al actualizar `main`. El sitio es público y contiene únicamente fixtures ficticios; no tiene autenticación, API ni operaciones reales. Este preview no satisface el hosting del portal operativo: TECH-31 excluye GitHub Pages para uso comercial y la decisión de hosting final sigue pendiente.

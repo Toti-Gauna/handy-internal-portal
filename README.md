@@ -15,6 +15,10 @@ npm run dev
 
 La portada explica el bloqueo de acceso. Desde allí se puede abrir una vista de muestra con datos ficticios claramente rotulados.
 
+## Vista de revisión
+
+[Abrir la demo en GitHub Pages](https://toti-gauna.github.io/handy-internal-portal/?demo=1#/inicio). El repositorio y el sitio son públicos. Solo contiene datos ficticios y no debe usarse para operar ni conectarse a datos reales; el hosting del portal operativo sigue pendiente.
+
 ## Comprobaciones
 
 ```sh
