@@ -1,21 +1,30 @@
-/* Handy brand palette and typography, aligned with Handy-landing-page-fe/src/brand/tokens.ts. */
+/* Tokens de marca de Handy, alineados con Handy-landing-page-fe/src/brand/tokens.ts. */
 :root {
-  --handy-blue: #1f57a8;
-  --handy-blue-ui: #4a72b0;
-  --handy-blue-vivid: #2f6bff;
-  --handy-yellow: #f5f59a;
-  --handy-ink: #0e1d36;
-  --handy-text: #26324a;
-  --handy-muted: #5f6b84;
-  --handy-page: #f7f6f1;
-  --handy-card: #ffffff;
-  --handy-tile: #ececec;
-  --handy-line: #dadfe8;
-  --handy-green: #1e9e57;
-  --handy-error: #d93025;
-  --handy-font-display: "Archivo", "Arial Black", system-ui, sans-serif;
-  --handy-font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --handy-radius-sm: 10px;
-  --handy-radius-md: 16px;
-  --handy-radius-lg: 24px;
+  --color-azul: #1f57a8;
+  --color-azul-ui: #4a72b0;
+  --color-azul-personajes: #2f6bff;
+  --color-gris: #cfcfcf;
+  --color-amarillo: #f5f59a;
+  --color-noche: #1d2c4a;
+  --color-mosaico: #ececec;
+  --color-hueso: #f7f6f1;
+  --color-tinta: #0e1d36;
+  --color-texto: #26324a;
+  --color-texto-suave: #5f6b84;
+  --color-fondo: #ffffff;
+  --color-borde: #dadfe8;
+  --color-naranja: #f6a623;
+  --color-error: #d93025;
+  --color-exito: #1e9e57;
+  --color-whatsapp: #1fa855;
+
+  --radio-sm: 10px;
+  --radio-md: 16px;
+  --radio-lg: 24px;
+  --radio-xl: 36px;
+  --radio-pastilla: 999px;
+
+  /* Fuentes empaquetadas con @fontsource: el portal no pide recursos a terceros. */
+  --fuente: "DM Sans Variable", "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fuente-titulos: "Archivo Variable", "Archivo", "Arial Black", system-ui, sans-serif;
 }

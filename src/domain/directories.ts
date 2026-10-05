@@ -15,20 +15,6 @@ export interface SpecialistSearch {
   pageSize: number;
 }
 
-export interface UserRecord {
-  id: string;
-  label: string;
-  registeredOn: string;
-  sampleState: "Activa · ficticio" | "Pendiente · ficticio";
-}
-
-export interface UserSearch {
-  search: string;
-  state: UserRecord["sampleState"] | "any";
-  page: number;
-  pageSize: number;
-}
-
 export interface PageResult<T> {
   rows: T[];
   total: number;
@@ -37,8 +23,12 @@ export interface PageResult<T> {
   totalPages: number;
 }
 
+export function normalize(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es").trim();
+}
+
 function includes(value: string, query: string): boolean {
-  return value.toLocaleLowerCase("es").includes(query.trim().toLocaleLowerCase("es"));
+  return normalize(value).includes(normalize(query));
 }
 
 function matchesActivity(state: ActivityState, filter: ActivityFilter): boolean {
@@ -61,13 +51,6 @@ export function filterSpecialists(records: SpecialistRecord[], filters: Speciali
       (filters.enabled === "any" || record.enabled === (filters.enabled === "yes")) &&
       matchesActivity(record.activity, filters.activity)
     );
-  });
-}
-
-export function filterUsers(records: UserRecord[], filters: UserSearch): UserRecord[] {
-  return records.filter((record) => {
-    const matchesSearch = filters.search.trim() === "" || [record.id, record.label].some((value) => includes(value, filters.search));
-    return matchesSearch && (filters.state === "any" || record.sampleState === filters.state);
   });
 }
 
