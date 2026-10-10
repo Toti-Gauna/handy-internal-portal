@@ -521,9 +521,17 @@ fieldset:disabled .opcion__caja {
   opacity: 0.6;
 }
 
+.opciones--1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.opciones--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .registro-contacto__campos {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
 }
 

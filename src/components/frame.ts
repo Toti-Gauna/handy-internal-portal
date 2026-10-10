@@ -26,7 +26,14 @@ export function renderLogo(extraClass = ""): string {
   `;
 }
 
-export function renderFrame(section: PortalSection, body: string, badges: NavBadges = {}): string {
+export interface FrameContext {
+  /** Vista de muestra con fixtures: muestra el aviso y "Salir de la muestra". */
+  preview: boolean;
+  /** Email de la sesión real, para identificar quién opera. */
+  email?: string | undefined;
+}
+
+export function renderFrame(section: PortalSection, body: string, badges: NavBadges = {}, context: FrameContext = { preview: true }): string {
   const links = navigation
     .map(({ section: itemSection, label, icon: iconName, path }) => {
       const current = itemSection === section;
@@ -47,18 +54,29 @@ export function renderFrame(section: PortalSection, body: string, badges: NavBad
       <div class="header__interior contenedor">
         ${renderLogo()}
         <nav class="nav" aria-label="Navegación principal">${links}</nav>
-        <button class="boton boton--contorno boton--chico header__salir" type="button" data-action="exit-demo">
+        ${
+          context.preview
+            ? `<button class="boton boton--contorno boton--chico header__salir" type="button" data-action="exit-demo">
           ${icon("salir")}<span>Salir de la muestra</span>
-        </button>
+        </button>`
+            : `${context.email ? `<span class="header__operador" title="Sesión iniciada">${escapeHtml(context.email)}</span>` : ""}
+        <button class="boton boton--contorno boton--chico header__salir" type="button" data-action="logout">
+          ${icon("salir")}<span>Cerrar sesión</span>
+        </button>`
+        }
       </div>
     </header>
 
-    <div class="aviso-muestra" role="note">
+    ${
+      context.preview
+        ? `<div class="aviso-muestra" role="note">
       <div class="contenedor aviso-muestra__interior">
         <span class="aviso-muestra__etiqueta">Muestra</span>
         <p>Todos los registros son ficticios. No hay conexión con la landing ni con Handy, y las acciones están bloqueadas.</p>
       </div>
-    </div>
+    </div>`
+        : ""
+    }
 
     <main id="main-content" class="contenido contenedor" tabindex="-1">
       ${body}

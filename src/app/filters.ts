@@ -1,11 +1,9 @@
 import type { SpecialistSearch } from "../domain/directories.ts";
 import {
   CONTACT_STATUSES,
-  OPCIONES_CUIT,
   RUBROS,
   rubroLabels,
   type ContactStatus,
-  type OpcionCuit,
   type Rubro,
   type SortOrder,
 } from "../domain/preregistros.ts";
@@ -32,17 +30,17 @@ export function readSpecialistFilters(): void {
 }
 
 function readOrder(id: string): SortOrder {
-  return value(id) === "antiguos" ? "antiguos" : "recientes";
+  const order = value(id);
+  return order === "antiguos" || order === "seguimiento" ? order : "recientes";
 }
 
 export function readPreregistroFilters(): void {
   if (root.querySelector("#especialista-filtros")) {
-    preEspecialistaFilters.cuit = oneOf<OpcionCuit>(value("especialista-cuit"), OPCIONES_CUIT);
     preEspecialistaFilters.orden = readOrder("especialista-orden");
     preEspecialistaFilters.page = 1;
   }
   if (root.querySelector("#usuario-filtros")) {
-    preUsuarioFilters.orden = readOrder("usuario-orden");
+    preUsuarioFilters.orden = readOrder("usuario-orden") === "antiguos" ? "antiguos" : "recientes";
     preUsuarioFilters.page = 1;
   }
 }

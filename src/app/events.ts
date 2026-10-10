@@ -1,6 +1,9 @@
 import { preEspecialistaFilters, preregistroTab, preUsuarioFilters, readRoute, requestState, root, specialistFilters } from "./state.ts";
 import { readPreregistroFilters, readSpecialistFilters, setContactFilter, toggleRubro } from "./filters.ts";
 import { loadPreregistros, loadSpecialists, renderApp, submitContact } from "./render.ts";
+import { cancelLogin, logout, resyncSession, submitLogin, submitMfa, watchSession } from "./session.ts";
+
+watchSession();
 
 function debounce(key: "specialistDebounce" | "preregistroDebounce", run: () => void): void {
   window.clearTimeout(requestState[key]);
@@ -18,6 +21,11 @@ root.addEventListener("input", (event: Event) => {
   }
   if (target.id === "especialista-busqueda") {
     preEspecialistaFilters.search = target.value;
+    preEspecialistaFilters.page = 1;
+    debounce("preregistroDebounce", () => void loadPreregistros());
+  }
+  if (target.id === "especialista-zona") {
+    preEspecialistaFilters.zona = target.value;
     preEspecialistaFilters.page = 1;
     debounce("preregistroDebounce", () => void loadPreregistros());
   }
@@ -45,7 +53,11 @@ root.addEventListener("change", (event: Event) => {
 
 root.addEventListener("submit", (event: SubmitEvent) => {
   event.preventDefault();
-  if (event.target instanceof HTMLFormElement && event.target.id === "registro-contacto") void submitContact(event.target);
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement)) return;
+  if (form.id === "registro-contacto") void submitContact(form);
+  if (form.id === "login-form") void submitLogin(form);
+  if (form.id === "mfa-form") void submitMfa(form);
 });
 
 function syncPressed(selector: string, isCurrent: (button: HTMLButtonElement) => boolean, currentClass: string): void {
@@ -78,6 +90,18 @@ root.addEventListener("click", (event: MouseEvent) => {
   const action = button.dataset.action;
   if (action === "exit-demo") {
     window.location.assign(window.location.pathname);
+    return;
+  }
+  if (action === "logout") {
+    void logout();
+    return;
+  }
+  if (action === "login-cancel") {
+    cancelLogin();
+    return;
+  }
+  if (action === "resync-session") {
+    void resyncSession();
     return;
   }
   if (action === "reload") {
