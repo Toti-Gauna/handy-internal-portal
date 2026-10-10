@@ -3,13 +3,13 @@ id: "PORTAL-DOCS-INDEX"
 type: "documentation-index"
 status: "provisional"
 owner: "Tech"
-updated: "2026-10-05"
+updated: "2026-10-10"
 related: ["TECH-12", "TECH-06"]
 ---
 
 # Documentación técnica
 
-Este repositorio es una vista de referencia del portal interno de Handy. Los contratos no aprobados se señalan con su ID y no se completan con reglas supuestas.
+Portal interno de Handy. Con `VITE_API_BASE_URL` se conecta a `Handy-landing-page-be` (login del equipo y pre-registros reales); sin ella solo ofrece una vista de muestra con datos ficticios. Los contratos no aprobados se señalan con su ID y no se completan con reglas supuestas.
 
 ## Arquitectura
 
@@ -22,7 +22,7 @@ Este repositorio es una vista de referencia del portal interno de Handy. Los con
 
 ## Contratos
 
-- [Contrato de Handy-landing-page-be](api/landing-be.md): propuesta para la landing (público) y el portal (`/admin/*`)
+- [Contrato de Handy-landing-page-be](api/landing-be.md): contrato implementado del backend que consume el portal (`/auth/*`, `/admin/*`), errores y límites
 
 ## Módulos y flujos
 
@@ -32,6 +32,7 @@ Este repositorio es una vista de referencia del portal interno de Handy. Los con
 ## Decisiones técnicas
 
 - [ADR-0001 · Stack web provisional](adr/ADR-0001-stack-web-provisional.md)
+- [ADR-0002 · Sesión del equipo y publicación estática](adr/ADR-0002-sesion-del-equipo-y-publicacion.md)
 
 ## Reglas para cambios
 
