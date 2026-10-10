@@ -12,7 +12,7 @@ import {
 } from "../domain/preregistros.ts";
 import type { TipoEvento } from "../contracts/landing-api.ts";
 import { stageLabels } from "../domain/specialists.ts";
-import { escapeHtml, formatDate, formatDateTime, toLocalInput } from "../components/escape.ts";
+import { escapeHtml, formatDate, formatDateTime, formatDateYear, toLocalInput } from "../components/escape.ts";
 import { icon } from "../components/icons.ts";
 import { renderStatePanel } from "../components/states.ts";
 import { avatar, contactPill, rubroChips } from "./preregistro-parts.ts";
@@ -238,7 +238,7 @@ function renderEspecialista(record: PreregistroEspecialista, context: DetailCont
             ${dato("Rubros", rubroChips(record.rubros))}
             ${dato("Zona donde trabaja", escapeHtml(record.zona))}
             ${dato("Privacidad", `<span class="dato-contacto">${icon("escudo")}Aceptó el aviso al anotarse</span>`)}
-            ${dato("Se elimina el", `<span class="texto-suave">${escapeHtml(formatDate(record.venceEn))}</span>`)}
+            ${dato("Se elimina el", `<span class="texto-suave">${escapeHtml(formatDateYear(record.venceEn))}</span>`)}
           </dl>
           <p class="nota">Solo se muestran los campos del formulario. El WhatsApp y el email se usan para coordinar el alta, como dice la política de privacidad de la landing. Alguien pudo anotar un número ajeno: confirmá con la persona al contactarla.</p>
         </section>
@@ -281,7 +281,7 @@ function renderUsuario(record: PreregistroUsuario): string {
         <dl class="datos">
           ${dato("Aviso de lanzamiento", "Por email (no se muestra)")}
           ${dato("Privacidad", `<span class="dato-contacto">${icon("escudo")}Aceptó el aviso al anotarse</span>`)}
-          ${dato("Se elimina el", `<span class="texto-suave">${escapeHtml(formatDate(record.venceEn))}</span>`)}
+          ${dato("Se elimina el", `<span class="texto-suave">${escapeHtml(formatDateYear(record.venceEn))}</span>`)}
         </dl>
       </section>
       <section class="tarjeta tarjeta--paso" aria-labelledby="uso-titulo">

@@ -13,6 +13,12 @@ export function escapeHtml(value: string): string {
 
 const timeZone = "America/Argentina/Buenos_Aires";
 const dateFormat = new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short", timeZone });
+const dateYearFormat = new Intl.DateTimeFormat("es-AR", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone,
+});
 const dateTimeFormat = new Intl.DateTimeFormat("es-AR", {
   weekday: "short",
   day: "numeric",
@@ -32,6 +38,11 @@ function format(value: string, formatter: Intl.DateTimeFormat): string {
 /** "5 oct". */
 export function formatDate(value: string): string {
   return format(value, dateFormat);
+}
+
+/** "5 oct 2027": para fechas lejanas (vencimientos) que sin año se confunden con hoy. */
+export function formatDateYear(value: string): string {
+  return format(value, dateYearFormat);
 }
 
 /** "lun, 6 oct, 16:00". */
