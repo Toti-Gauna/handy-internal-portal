@@ -1,0 +1,24 @@
+# Hostinger (Apache/LiteSpeed): portal interno en la raíz de interno.handyc.com
+# (VITE_API_BASE_URL=https://api.handyc.com BASE_PATH=/ npm run build). Las rutas son de hash (#/…): no hace falta reescribir.
+Options -Indexes
+ErrorDocument 404 /index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "no-referrer"
+  Header always set X-Frame-Options "DENY"
+  # Lo que una <meta> no puede fijar. Se suma a la CSP del index.html (se aplican las dos).
+  Header always set Content-Security-Policy "frame-ancestors 'none'"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  # Solo activar HSTS cuando el dominio y HTTPS estén verificados.
+  # Header always set Strict-Transport-Security "max-age=31536000"
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-store"
+  </FilesMatch>
+</IfModule>
