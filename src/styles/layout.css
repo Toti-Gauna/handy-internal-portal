@@ -236,3 +236,28 @@
 .titulo--acceso {
   font-size: clamp(2rem, 6vw, 2.6rem);
 }
+
+.header__operador {
+  max-width: 220px;
+  overflow: hidden;
+  margin-left: auto;
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header__operador + .header__salir {
+  margin-left: 0;
+}
+
+@media (max-width: 820px) {
+  .header__operador {
+    display: none;
+  }
+
+  .header__operador + .header__salir {
+    margin-left: auto;
+  }
+}

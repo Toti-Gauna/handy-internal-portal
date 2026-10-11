@@ -1,15 +1,6 @@
 import { escapeHtml, initials } from "../components/escape.ts";
 import { icon, isIconName } from "../components/icons.ts";
-import {
-  contactAttempts,
-  contactStatus,
-  contactStatusLabels,
-  cuitLabels,
-  rubroLabels,
-  type OpcionCuit,
-  type PreregistroEspecialista,
-  type Rubro,
-} from "../domain/preregistros.ts";
+import { contactStatusLabels, rubroLabels, type PreregistroEspecialistaFila, type Rubro } from "../domain/preregistros.ts";
 
 export function rubroIcon(rubro: Rubro): string {
   const name = rubroLabels[rubro].icono;
@@ -26,13 +17,8 @@ export function avatar(name: string, variant = ""): string {
   return `<span class="avatar ${variant}" aria-hidden="true">${escapeHtml(initials(name))}</span>`;
 }
 
-export function contactPill(record: PreregistroEspecialista): string {
-  const status = contactStatus(record);
-  const attempts = contactAttempts(record);
-  const extra = status === "con_intentos" ? ` · ${attempts}` : "";
-  return `<span class="pastilla pastilla--${status}">${escapeHtml(contactStatusLabels[status])}${extra}</span>`;
-}
-
-export function cuitPill(cuit: OpcionCuit): string {
-  return `<span class="pastilla pastilla--cuit-${cuit}">${escapeHtml(cuitLabels[cuit])}</span>`;
+/** El estado de contacto lo deriva el servidor (`contacto`, `intentos`): la UI no lo recalcula. */
+export function contactPill(record: Pick<PreregistroEspecialistaFila, "contacto" | "intentos">): string {
+  const extra = record.contacto === "con_intentos" ? ` · ${record.intentos}` : "";
+  return `<span class="pastilla pastilla--${record.contacto}">${escapeHtml(contactStatusLabels[record.contacto])}${extra}</span>`;
 }

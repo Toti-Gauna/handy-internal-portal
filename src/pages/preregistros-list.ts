@@ -1,10 +1,8 @@
 import type { PageResult } from "../domain/directories.ts";
 import {
   CONTACT_STATUSES,
-  OPCIONES_CUIT,
   RUBROS,
   contactStatusLabels,
-  cuitLabels,
   rubroLabels,
   type ContactCounts,
   type ContactStatus,
@@ -18,7 +16,7 @@ import { pageHeading } from "../components/frame.ts";
 import { icon } from "../components/icons.ts";
 import { renderStatePanel } from "../components/states.ts";
 import type { PreregistroTab } from "../app/state.ts";
-import { avatar, contactPill, cuitPill, rubroChips, rubroIcon } from "./preregistro-parts.ts";
+import { avatar, contactPill, rubroChips, rubroIcon } from "./preregistro-parts.ts";
 
 function option(value: string, label: string, selected: string): string {
   return `<option value="${escapeHtml(value)}" ${selected === value ? "selected" : ""}>${escapeHtml(label)}</option>`;
@@ -27,6 +25,13 @@ function option(value: string, label: string, selected: string): string {
 export interface PreregistroTotals {
   especialistas: number;
   usuarios: number;
+}
+
+export interface ListContext {
+  /** Muestra con fixtures (filtra localmente) o backend real (filtra el servidor). */
+  previewMode: boolean;
+  /** `preregistros:support`: buscar a un usuario por su email exacto. */
+  canSearchUsersByEmail: boolean;
 }
 
 function tabs(current: PreregistroTab, totals: PreregistroTotals | null): string {
@@ -42,21 +47,23 @@ function tabs(current: PreregistroTab, totals: PreregistroTotals | null): string
   `;
 }
 
-function searchField(id: string, value: string, placeholder: string): string {
+function searchField(id: string, value: string, placeholder: string, describedBy: string): string {
   return `
     <label class="campo campo--busqueda">
-      <span class="sr-only">Buscar</span>
+      <span class="sr-only">Buscar (búsqueda exacta)</span>
       ${icon("lupa")}
-      <input id="${id}" type="search" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(value)}" autocomplete="off" />
+      <input id="${id}" type="search" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(value)}" autocomplete="off" aria-describedby="${describedBy}" />
     </label>
   `;
 }
 
-function orderSelect(id: string, value: string): string {
+function orderSelect(id: string, value: string, withFollowUp = false): string {
   return `
     <label class="campo campo--select">
       <span class="campo__label">Orden</span>
-      <select id="${id}">${option("recientes", "Más recientes", value)}${option("antiguos", "Más antiguos", value)}</select>
+      <select id="${id}">${option("recientes", "Más recientes", value)}${option("antiguos", "Más antiguos", value)}${
+        withFollowUp ? option("seguimiento", "Seguimiento más próximo", value) : ""
+      }</select>
     </label>
   `;
 }
@@ -75,6 +82,7 @@ export function renderPreregistrosPage(
   especialistas: EspecialistaPreSearch,
   usuarios: UsuarioPreSearch,
   totals: PreregistroTotals | null,
+  context: ListContext,
 ): string {
   const heading = pageHeading(
     "Formulario de la landing",
@@ -84,18 +92,25 @@ export function renderPreregistrosPage(
       : "Personas que quieren usar Handy. Se les avisa del lanzamiento; no entran en el embudo de contacto.",
     tabs(tab, totals),
   );
+  const loading = renderStatePanel("loading", "Cargando pre-registros", context.previewMode ? "Aplicando filtros a la muestra." : "Consultando al servidor.");
 
   if (tab === "usuarios") {
+    const placeholder = context.canSearchUsersByEmail ? "ID o email exacto…" : "ID exacto…";
     return `
       ${heading}
       <section class="tarjeta" aria-label="Pre-registros de usuarios">
         <form class="filtros" id="usuario-filtros" aria-label="Filtros de usuarios">
-          ${searchField("usuario-busqueda", usuarios.search, "Nombre, barrio, email o necesidad…")}
+          ${searchField("usuario-busqueda", usuarios.search, placeholder, "usuario-busqueda-ayuda")}
           ${orderSelect("usuario-orden", usuarios.orden)}
         </form>
-        <div id="preregistro-resultados">${renderStatePanel("loading", "Cargando pre-registros", "Aplicando filtros a la muestra.")}</div>
+        <p class="nota nota--filtros" id="usuario-busqueda-ayuda">${
+          context.canSearchUsersByEmail
+            ? "La búsqueda es exacta: ID o email completo (para atender pedidos de baja o acceso). No busca por parte del email."
+            : "La búsqueda es exacta y por ID. Buscar a un usuario por su email requiere el permiso preregistros:support."
+        }</p>
+        <div id="preregistro-resultados">${loading}</div>
       </section>
-      <p class="nota nota--pie">El email y el WhatsApp de usuarios se usan solo para avisar el lanzamiento, como dice la política de privacidad de la landing. Por eso la lista no los muestra.</p>
+      <p class="nota nota--pie">Los usuarios solo muestran id y fechas: el email y el WhatsApp se usan solo para avisar el lanzamiento, como dice la política de privacidad de la landing.</p>
     `;
   }
 
@@ -112,16 +127,21 @@ export function renderPreregistrosPage(
         ).join("")}
       </div>
       <form class="filtros" id="especialista-filtros" aria-label="Filtros de especialistas">
-        ${searchField("especialista-busqueda", especialistas.search, "Nombre, zona, email o WhatsApp…")}
-        <label class="campo campo--select">
-          <span class="campo__label">CUIT</span>
-          <select id="especialista-cuit">${option("any", "Todos", especialistas.cuit)}${OPCIONES_CUIT.map((cuit) => option(cuit, cuitLabels[cuit], especialistas.cuit)).join("")}</select>
+        ${searchField("especialista-busqueda", especialistas.search, "ID o WhatsApp completo…", "especialista-busqueda-ayuda")}
+        <label class="campo campo--zona">
+          <span class="campo__label">Zona (exacta)</span>
+          <input id="especialista-zona" type="text" maxlength="120" autocomplete="off" placeholder="Ej.: Zona norte" value="${escapeHtml(especialistas.zona)}" />
         </label>
-        ${orderSelect("especialista-orden", especialistas.orden)}
+        ${orderSelect("especialista-orden", especialistas.orden, true)}
       </form>
-      <div id="preregistro-resultados">${renderStatePanel("loading", "Cargando pre-registros", "Aplicando filtros a la muestra.")}</div>
+      <p class="nota nota--filtros" id="especialista-busqueda-ayuda">La búsqueda es exacta: ID o WhatsApp completo, con código de área. No busca por nombre ni por parte del número. La zona también tiene que coincidir entera (da igual mayúsculas y tildes).</p>
+      <div id="preregistro-resultados">${loading}</div>
     </section>
-    <p class="nota nota--pie">La muestra filtra localmente. En producción, búsqueda, filtros y paginación van en servidor según la propuesta de contrato (TECH-03).</p>
+    <p class="nota nota--pie">${
+      context.previewMode
+        ? "La muestra filtra localmente. Con el backend conectado, búsqueda, filtros, orden y paginación (hasta 50 por página) los hace el servidor."
+        : "Búsqueda, filtros, orden y paginación los hace el servidor. Cada consulta queda auditada."
+    }</p>
   `;
 }
 
@@ -140,7 +160,7 @@ function pagination<T>(result: PageResult<T>): string {
 
 export function renderEspecialistaResults(result: EspecialistasPage): string {
   if (result.total === 0) {
-    return renderStatePanel("empty", "No hay pre-registros con esos filtros", "Probá sacando algún filtro o buscando de otra forma.");
+    return renderStatePanel("empty", "No hay pre-registros con esos filtros", "Probá sacando algún filtro. Recordá que la búsqueda y la zona son exactas.");
   }
   const rows = result.rows
     .map(
@@ -153,7 +173,7 @@ export function renderEspecialistaResults(result: EspecialistasPage): string {
             <span class="fila__meta">${icon("pin")}${escapeHtml(record.zona)} <span aria-hidden="true">·</span> Se anotó el ${escapeHtml(formatDate(record.creadoEn))}</span>
           </span>
           <span class="fila__rubros">${rubroChips(record.rubros)}</span>
-          <span class="fila__estado">${cuitPill(record.cuit)}${contactPill(record)}</span>
+          <span class="fila__estado">${contactPill(record)}</span>
           <span class="fila__flecha">${icon("derecha")}</span>
         </a>
       </li>`,
@@ -164,20 +184,19 @@ export function renderEspecialistaResults(result: EspecialistasPage): string {
 
 export function renderUsuarioResults(result: PageResult<PreregistroUsuario>): string {
   if (result.total === 0) {
-    return renderStatePanel("empty", "No hay pre-registros con esa búsqueda", "Probá con otro nombre, barrio o email.");
+    return renderStatePanel("empty", "No hay pre-registros de usuarios con esa búsqueda", "La búsqueda es exacta: probá con el ID completo o con el email completo.");
   }
   const rows = result.rows
     .map(
       (record) => `
       <li>
         <a class="fila fila--usuario" href="#/preregistros/${encodeURIComponent(record.id)}">
-          ${avatar(record.nombre, "avatar--claro")}
+          ${avatar("U", "avatar--claro")}
           <span class="fila__principal">
-            <strong class="fila__nombre">${escapeHtml(record.nombre)}</strong>
-            <span class="fila__meta">${icon("pin")}${escapeHtml(record.barrio)} <span aria-hidden="true">·</span> Se anotó el ${escapeHtml(formatDate(record.creadoEn))}</span>
+            <strong class="fila__nombre">Usuario anotado</strong>
+            <span class="fila__meta">${escapeHtml(record.id)} <span aria-hidden="true">·</span> Se anotó el ${escapeHtml(formatDate(record.creadoEn))}</span>
           </span>
-          <span class="fila__necesidad">${record.necesidad ? `“${escapeHtml(record.necesidad)}”` : '<span class="texto-suave">Sin necesidad indicada</span>'}</span>
-          <span class="fila__estado"><span class="pastilla pastilla--neutra">${record.dejoWhatsapp ? "Email + WhatsApp" : "Email"}</span></span>
+          <span class="fila__estado"><span class="pastilla pastilla--neutra">Aviso de lanzamiento</span></span>
           <span class="fila__flecha">${icon("derecha")}</span>
         </a>
       </li>`,

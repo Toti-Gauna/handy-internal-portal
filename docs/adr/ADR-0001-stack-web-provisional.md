@@ -27,5 +27,5 @@ Crear una SPA independiente con Vite, TypeScript estricto, DOM modular y CSS. Re
 
 - La elección es reversible y no cambia las apps ni los servicios backend.
 - No implica hosting, publicación o proveedor de identidad.
-- El portal sigue siendo una vista de referencia hasta resolver TECH-06/TECH-08 y los contratos dependientes.
+- El portal sigue siendo una vista de referencia hasta resolver TECH-06/TECH-08 y los contratos dependientes. _Actualización 2026-10-10: el login del equipo y los pre-registros ya se conectan al backend de la landing; ver [ADR-0002](ADR-0002-sesion-del-equipo-y-publicacion.md)._
 - Revisar esta decisión cuando TECH-06 cierre el stack final del portal.

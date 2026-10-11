@@ -13,6 +13,12 @@ export function escapeHtml(value: string): string {
 
 const timeZone = "America/Argentina/Buenos_Aires";
 const dateFormat = new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short", timeZone });
+const dateYearFormat = new Intl.DateTimeFormat("es-AR", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone,
+});
 const dateTimeFormat = new Intl.DateTimeFormat("es-AR", {
   weekday: "short",
   day: "numeric",
@@ -34,6 +40,11 @@ export function formatDate(value: string): string {
   return format(value, dateFormat);
 }
 
+/** "5 oct 2027": para fechas lejanas (vencimientos) que sin año se confunden con hoy. */
+export function formatDateYear(value: string): string {
+  return format(value, dateYearFormat);
+}
+
 /** "lun, 6 oct, 16:00". */
 export function formatDateTime(value: string): string {
   return format(value, dateTimeFormat);
@@ -48,4 +59,20 @@ export function initials(name: string): string {
     .slice(0, 2)
     .map((part) => part[0]?.toLocaleUpperCase("es") ?? "")
     .join("");
+}
+
+/** Valor para `<input type="datetime-local">` en la hora local del navegador ("2026-10-12T15:30"). */
+export function toLocalInput(value: string | undefined): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (n: number): string => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+/** Inverso: un `datetime-local` (sin zona) se interpreta en la hora local del navegador y viaja en ISO 8601. */
+export function fromLocalInput(value: string): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }

@@ -755,3 +755,89 @@ fieldset:disabled .campo input {
     transform: rotate(360deg);
   }
 }
+
+/* ── Avisos y errores de campo ───────────────────────────────────────── */
+
+.aviso {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--radio-md);
+  background: var(--color-mosaico);
+  color: var(--color-tinta);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.aviso--info {
+  background: #e4edfa;
+  color: var(--color-azul);
+}
+
+.aviso--error {
+  background: #fdeceb;
+  color: #8f1d15;
+}
+
+.aviso--alerta {
+  background: var(--color-amarillo);
+  color: var(--color-tinta);
+}
+
+.aviso--chico {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radio-pastilla);
+  font-size: 0.8rem;
+}
+
+.aviso--chico .icono {
+  width: 14px;
+  height: 14px;
+}
+
+.campo__error {
+  min-height: 0;
+  color: #8f1d15;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.campo__error:empty {
+  display: none;
+}
+
+.campo input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.nota--filtros {
+  margin: -6px 2px 16px;
+}
+
+.campo--zona {
+  flex: 0 1 200px;
+}
+
+/* ── Ingreso ─────────────────────────────────────────────────────────── */
+
+.login fieldset {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.login fieldset:disabled .boton {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.acceso code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--color-mosaico);
+  font-size: 0.9em;
+}
